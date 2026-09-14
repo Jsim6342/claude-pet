@@ -14,7 +14,8 @@
     "procs": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/list-claude-procs.ps1 > logs/procs.txt 2>&1",
     "guide": "node tools/build-guide.js",
     "icon": "electron tools/make-icon.js > logs/icon.log 2>&1",
-    "dist": "electron-builder --win > logs/build.log 2>&1"
+    "dist": "electron-builder --win > logs/build.log 2>&1",
+    "release": "node tools/release.js > logs/release.log 2>&1"
   },
   "build": {
     "appId": "com.jsb.claude-pet",
