@@ -1,0 +1,68 @@
+{
+  "name": "claude-pet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "바탕화면을 돌아다니는 캐릭터에게 말풍선으로 Claude Code를 시키는 데스크톱 펫",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "debug": "cross-env PET_DEBUG=1 electron . > logs/debug.log 2>&1",
+    "e2e": "node tools/e2e.js > logs/e2e.log 2>&1",
+    "tracker": "node tools/test-tracker.js > logs/tracker.log 2>&1",
+    "shot": "cross-env PET_SHOT=1 electron . > logs/shot.log 2>&1",
+    "selftest": "cross-env PET_SELFTEST=1 electron . > logs/selftest.log 2>&1",
+    "procs": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/list-claude-procs.ps1 > logs/procs.txt 2>&1",
+    "guide": "node tools/build-guide.js",
+    "icon": "electron tools/make-icon.js > logs/icon.log 2>&1",
+    "dist": "electron-builder --win > logs/build.log 2>&1"
+  },
+  "build": {
+    "appId": "com.jsb.claude-pet",
+    "productName": "Claude Pet",
+    "copyright": "Claude Pet",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/**",
+      "!node_modules/@anthropic-ai/claude-agent-sdk-darwin-*/**",
+      "!node_modules/@anthropic-ai/claude-agent-sdk-linux-*/**"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Jsim6342",
+        "repo": "claude-pet"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "ClaudePet-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Claude Pet",
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.268",
+    "electron-updater": "^6.8.9",
+    "koffi": "^3.2.1"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
+  }
+}

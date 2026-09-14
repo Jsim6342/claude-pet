@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+  <title>Claude Pet</title>
+  <link rel="stylesheet" href="pet.css" />
+</head>
+<body>
+  <!--
+    캐릭터는 전부 인라인 SVG. 나중에 이미지로 바꾸려면 <g id="pet"> 안을
+    <image href="../../assets/pet.png" .../> 로 갈아끼우면 된다.
+    (자세한 교체 방법은 README 참고)
+  -->
+  <svg id="stage" viewBox="0 0 128 128" class="mode-idle facing-right" aria-hidden="true">
+    <!-- 바닥 그림자: 캐릭터 판정에서 제외하려고 pet 그룹 밖에 둔다 -->
+    <ellipse id="shadow" cx="64" cy="125" rx="29" ry="4" />
+
+    <g id="pet">
+      <!-- 꼬리 (몸통 뒤) -->
+      <path id="tail" d="M 96 92 C 110 92 118 82 113 70" />
+
+      <!-- 귀 (몸통 뒤) -->
+      <ellipse class="ear" id="ear-l" cx="38" cy="44" rx="12" ry="14.5" />
+      <ellipse class="ear" id="ear-r" cx="90" cy="44" rx="12" ry="14.5" />
+
+      <!-- 더듬이 -->
+      <g id="antenna">
+        <path id="antenna-stem" d="M 64 48 C 62 39 66 33 69 30" />
+        <circle id="antenna-dot" cx="70" cy="28" r="5" />
+      </g>
+
+      <!-- 다리 -->
+      <g id="legs">
+        <rect class="leg" id="leg-l" x="44" y="102" width="15" height="22" rx="7.5" />
+        <rect class="leg" id="leg-r" x="69" y="102" width="15" height="22" rx="7.5" />
+      </g>
+
+      <!-- 몸통 -->
+      <g id="body">
+        <ellipse id="torso" cx="64" cy="78" rx="36" ry="33" />
+        <ellipse id="belly" cx="64" cy="88" rx="23" ry="19" />
+
+        <ellipse class="blush" cx="40" cy="84" rx="7.5" ry="4.4" />
+        <ellipse class="blush" cx="88" cy="84" rx="7.5" ry="4.4" />
+
+        <g id="eyes">
+          <g class="eye">
+            <ellipse class="eyeball" cx="52" cy="74" rx="5" ry="6.6" />
+            <circle class="glint" cx="53.6" cy="71.4" r="1.9" />
+          </g>
+          <g class="eye">
+            <ellipse class="eyeball" cx="76" cy="74" rx="5" ry="6.6" />
+            <circle class="glint" cx="77.6" cy="71.4" r="1.9" />
+          </g>
+        </g>
+
+        <path id="mouth" d="M 58 89 q 6 5.5 12 0" />
+      </g>
+    </g>
+
+    <!--
+      새 답변 알림 뱃지. 좌우 반전에 같이 뒤집히면 안 되므로 #pet 밖에 둔다.
+      평소엔 숨어 있고 .notify 일 때만 보인다.
+    -->
+    <g id="badge">
+      <circle id="badge-bg" cx="101" cy="26" r="15" />
+      <path id="badge-mark" d="M 101 19 v 8" />
+      <circle id="badge-dot" cx="101" cy="32.6" r="2.4" />
+    </g>
+  </svg>
+
+  <script src="pet.js"></script>
+</body>
+</html>

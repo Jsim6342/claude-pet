@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude Pet 사용 설명서</title>
+<style>
+  :root{
+    --clay:#D97757; --clay-deep:#BF6040; --clay-soft:#F6D9CC;
+    --paper:#FFFBF7; --paper2:#F6ECE3; --ink:#2F241F; --muted:#8B7A71;
+    --line:#EADCD1; --leg:#A8512F; --cream:#FBF0E8; --blush:#E26D5C;
+    --good:#3E7D5A; --warn:#C9743B;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font:17px/1.75 "Pretendard","Malgun Gothic","Segoe UI",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .band{padding:78px 24px}
+  .band.alt{background:var(--paper2)}
+  .band.ink{background:var(--ink); color:var(--cream)}
+  .wrap{max-width:960px; margin:0 auto}
+
+  h1{font-size:clamp(34px,6vw,60px); line-height:1.15; margin:0 0 12px; letter-spacing:-1.5px}
+  h2{font-size:clamp(26px,4vw,40px); line-height:1.2; margin:0 0 8px; letter-spacing:-1px}
+  .lead{font-size:clamp(17px,2.2vw,21px); color:var(--muted); margin:0 0 44px}
+  .ink .lead{color:#C4B0A4}
+  .step-no{
+    display:inline-block; font-size:13px; font-weight:800; letter-spacing:2px;
+    color:var(--clay); text-transform:uppercase; margin-bottom:10px;
+  }
+
+  /* ---------------- 히어로 ---------------- */
+  .hero{
+    background:linear-gradient(180deg,#FFF6EF 0%,var(--paper) 100%);
+    padding:70px 24px 0; text-align:center; overflow:hidden;
+  }
+  .stage{
+    position:relative; height:190px; margin-top:34px;
+    border-bottom:4px solid var(--line);
+  }
+  .roamer{
+    position:absolute; bottom:-4px; left:0; width:150px; height:150px;
+    animation:roam 13s linear infinite;
+  }
+  @keyframes roam{
+    0%   {left:2%;  transform:scaleX(1)}
+    46%  {left:78%; transform:scaleX(1)}
+    50%  {left:78%; transform:scaleX(-1)}
+    96%  {left:2%;  transform:scaleX(-1)}
+    100% {left:2%;  transform:scaleX(1)}
+  }
+
+  /* ---------------- 만화 ---------------- */
+  .comic{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:14px; align-items:center}
+  .panel{
+    background:var(--paper); border:2px solid var(--line); border-radius:20px;
+    padding:24px 18px; text-align:center; min-height:230px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  }
+  .alt .panel{background:#fff}
+  .panel b{font-size:19px}
+  .panel small{color:var(--muted); font-size:14.5px; line-height:1.6}
+  .arrow{font-size:30px; color:var(--clay); font-weight:700}
+
+  /* ---------------- 카드 ---------------- */
+  .cards{display:grid; gap:16px}
+  .c2{grid-template-columns:repeat(2,1fr)}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--paper); border:2px solid var(--line); border-radius:18px; padding:22px;
+  }
+  .alt .card{background:#fff}
+  .ink .card{background:#3B2E28; border-color:#4E3E36}
+  .card h3{margin:0 0 6px; font-size:19px}
+  .card p{margin:0; color:var(--muted); font-size:15px; line-height:1.65}
+  .ink .card p{color:#C4B0A4}
+  .icon{font-size:38px; line-height:1; margin-bottom:12px; display:block}
+
+  kbd{
+    font:600 14px/1 ui-monospace,Consolas,monospace; background:var(--paper2);
+    border:1px solid var(--line); border-bottom-width:3px; border-radius:7px;
+    padding:6px 9px; display:inline-block; color:var(--ink);
+  }
+  code{
+    font:14px/1.5 ui-monospace,Consolas,monospace; background:var(--paper2);
+    border:1px solid var(--line); border-radius:5px; padding:1px 5px;
+  }
+  .ink code{background:#42342D; border-color:#55443B; color:#F2DFD2}
+  pre{
+    background:var(--ink); color:#F3E6DA; border-radius:16px; padding:20px 22px;
+    overflow-x:auto; font:14px/1.75 ui-monospace,Consolas,monospace; margin:0;
+  }
+  pre .k{color:#E8A87C} pre .s{color:#A8CBA0} pre .c{color:#8B7A71}
+
+  /* ---------------- 스크린샷 + 말풍선 지시 ---------------- */
+  .shotwrap{position:relative; display:inline-block; margin:26px 28px;
+            filter:drop-shadow(0 14px 34px rgba(0,0,0,.16))}
+  .shotwrap img{display:block; width:400px; max-width:100%; border-radius:14px}
+  .pin{
+    position:absolute; width:30px; height:30px; border-radius:50%;
+    background:var(--clay); color:#fff; font:800 15px/30px system-ui; text-align:center;
+    box-shadow:0 0 0 4px rgba(217,119,87,.28);
+  }
+  .pinlist{list-style:none; margin:0; padding:0; display:grid; gap:14px}
+  .pinlist li{display:flex; gap:13px; align-items:flex-start}
+  .pinlist .n{
+    flex:none; width:30px; height:30px; border-radius:50%; background:var(--clay);
+    color:#fff; font:800 15px/30px system-ui; text-align:center;
+  }
+  .pinlist b{display:block; font-size:16.5px}
+  .pinlist small{color:var(--muted); font-size:14.5px}
+  .split{display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:center}
+
+  /* ---------------- 기분 표 ---------------- */
+  .moods{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; text-align:center}
+  .mood{background:var(--paper); border:2px solid var(--line); border-radius:18px; padding:18px 10px}
+  .alt .mood{background:#fff}
+  .mood b{display:block; margin-top:6px; font-size:17px}
+  .mood small{color:var(--muted); font-size:13.5px}
+
+  /* ---------------- 규칙 다이어그램 ---------------- */
+  .rules{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
+  .rule{
+    background:#fff; border:2px solid var(--line); border-radius:18px; padding:20px;
+    display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center;
+  }
+  .rule b{font-size:17px} .rule p{margin:4px 0 0; color:var(--muted); font-size:14.5px; line-height:1.6}
+
+  /* ---------------- 파일 지도 ---------------- */
+  .map{display:grid; gap:10px}
+  .row{
+    display:grid; grid-template-columns:270px 1fr; gap:18px; align-items:center;
+    background:#fff; border:2px solid var(--line); border-radius:14px; padding:14px 18px;
+  }
+  .row code{background:var(--paper2)}
+  .row span{color:var(--muted); font-size:15px}
+
+  .todo{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+  .todo .card{border-style:dashed}
+
+  .note{
+    border-left:5px solid var(--clay); background:var(--paper2);
+    border-radius:0 14px 14px 0; padding:18px 22px; margin-top:26px;
+  }
+  .note b{color:var(--clay-deep)}
+
+  footer{padding:52px 24px 70px; text-align:center; color:var(--muted); font-size:14.5px}
+
+  @media(max-width:860px){
+    .comic{grid-template-columns:1fr; }
+    .comic .arrow{transform:rotate(90deg)}
+    .c3,.c4,.moods,.rules,.todo{grid-template-columns:1fr 1fr}
+    .split{grid-template-columns:1fr; gap:28px}
+    .row{grid-template-columns:1fr; gap:6px}
+    .band{padding:56px 18px}
+  }
+  @media(max-width:560px){
+    .c2,.c3,.c4,.moods,.rules,.todo{grid-template-columns:1fr}
+  }
+
+  /* ================= 캐릭터 SVG ================= */
+  .pet{display:block; width:100%; height:100%; overflow:visible}
+  .pet *{transform-box:fill-box}
+  .pet .shadow{fill:#000; opacity:.15}
+  .pet .torso,.pet .ear{fill:var(--clay)}
+  .pet .belly{fill:var(--cream); opacity:.92}
+  .pet .tail{fill:none; stroke:var(--clay); stroke-width:8; stroke-linecap:round;
+             transform-origin:0% 100%; animation:wag 1.8s ease-in-out infinite}
+  .pet .stem{fill:none; stroke:var(--clay-deep); stroke-width:3.4; stroke-linecap:round}
+  .pet .dot{fill:#F2A98F}
+  .pet .antenna{transform-origin:20% 100%; animation:sway 3.8s ease-in-out infinite}
+  .pet .leg{fill:var(--leg); transform-origin:50% 8%}
+  .pet .eyeball{fill:var(--ink)}
+  .pet .glint{fill:#fff; opacity:.9}
+  .pet .eyes{transform-origin:center; animation:blink 5.2s ease-in-out infinite}
+  .pet .blush{fill:var(--blush); opacity:.42}
+  .pet .mouth{fill:none; stroke:var(--ink); stroke-width:2.6; stroke-linecap:round}
+  .pet .body{transform-origin:50% 100%; animation:breathe 3.4s ease-in-out infinite}
+
+  .pet.walk .body{animation:breathe 3.4s ease-in-out infinite, bob .52s ease-in-out infinite}
+  .pet.walk .leg-l{animation:step .52s ease-in-out infinite}
+  .pet.walk .leg-r{animation:step .52s ease-in-out infinite; animation-delay:-.26s}
+  .pet.walk .ear{animation:jiggle .52s ease-in-out infinite}
+  .pet.walk .tail{animation:wag .52s ease-in-out infinite}
+
+  .pet.busy .dot{animation:pulse .95s ease-in-out infinite}
+  .pet.busy .antenna{animation:sway .9s ease-in-out infinite}
+  .pet.busy .eyes{animation:none; transform:scaleY(.58)}
+  .pet.busy .mouth{d:path('M 59 90 h 10')}
+
+  .pet.held .leg{animation:dangle .62s ease-in-out infinite}
+  .pet.held .leg-r{animation-delay:-.31s}
+  .pet.held .eyes{animation:none; transform:scale(1.18)}
+  .pet.held .mouth{d:path('M 58 90 q 6 -4 12 0')}
+  .pet.held .shadow{opacity:.06}
+
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.975)}}
+  @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -3.5px}}
+  @keyframes step{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-14deg)}}
+  @keyframes dangle{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+  @keyframes jiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  @keyframes wag{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(11deg)}}
+  @keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(8deg)}}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+  @keyframes pulse{0%,100%{transform:scale(1);fill:#F2A98F}50%{transform:scale(1.45);fill:#FFD9C9}}
+</style>
+</head>
+<body>
+
+<!-- 캐릭터 원본. JS로 복제해서 여기저기 심는다 -->
+<template id="petTpl">
+  <svg class="pet" viewBox="0 0 128 128" aria-hidden="true">
+    <ellipse class="shadow" cx="64" cy="125" rx="29" ry="4"/>
+    <path class="tail" d="M 96 92 C 110 92 118 82 113 70"/>
+    <ellipse class="ear" cx="38" cy="44" rx="12" ry="14.5"/>
+    <ellipse class="ear" cx="90" cy="44" rx="12" ry="14.5"/>
+    <g class="antenna">
+      <path class="stem" d="M 64 48 C 62 39 66 33 69 30"/>
+      <circle class="dot" cx="70" cy="28" r="5"/>
+    </g>
+    <g class="legs">
+      <rect class="leg leg-l" x="44" y="102" width="15" height="22" rx="7.5"/>
+      <rect class="leg leg-r" x="69" y="102" width="15" height="22" rx="7.5"/>
+    </g>
+    <g class="body">
+      <ellipse class="torso" cx="64" cy="78" rx="36" ry="33"/>
+      <ellipse class="belly" cx="64" cy="88" rx="23" ry="19"/>
+      <ellipse class="blush" cx="40" cy="84" rx="7.5" ry="4.4"/>
+      <ellipse class="blush" cx="88" cy="84" rx="7.5" ry="4.4"/>
+      <g class="eyes">
+        <ellipse class="eyeball" cx="52" cy="74" rx="5" ry="6.6"/>
+        <circle class="glint" cx="53.6" cy="71.4" r="1.9"/>
+        <ellipse class="eyeball" cx="76" cy="74" rx="5" ry="6.6"/>
+        <circle class="glint" cx="77.6" cy="71.4" r="1.9"/>
+      </g>
+      <path class="mouth" d="M 58 89 q 6 5.5 12 0"/>
+    </g>
+  </svg>
+</template>
+
+
+<!-- ==================== 히어로 ==================== -->
+<section class="hero">
+  <div class="wrap">
+    <h1>내 바탕화면에 사는 Claude</h1>
+    <p class="lead">걸어다니다가, 클릭하면 말풍선이 열리고, 시키면 진짜로 파일을 고쳐요.</p>
+    <div class="stage"><div class="roamer" data-pet="walk"></div></div>
+  </div>
+</section>
+
+
+<!-- ==================== 1. 뭐 하는 앱? ==================== -->
+<section class="band alt">
+  <div class="wrap">
+    <span class="step-no">이게 뭐냐면</span>
+    <h2>터미널 대신, 캐릭터한테 말하기</h2>
+    <p class="lead">하는 일은 원래 쓰던 Claude Code와 똑같아요. 창구만 바뀐 거예요.</p>
+
+    <div class="comic">
+      <div class="panel">
+        <div style="width:110px;height:110px" data-pet="idle"></div>
+        <b>1. 클릭</b>
+        <small>바닥을 걸어다니는<br>캐릭터를 누른다</small>
+      </div>
+      <div class="arrow">→</div>
+      <div class="panel">
+        <div style="font-size:46px">💬</div>
+        <b>2. 말하기</b>
+        <small>"이 파일 버그 좀<br>찾아줘" 라고 적는다</small>
+      </div>
+      <div class="arrow">→</div>
+      <div class="panel">
+        <div style="width:110px;height:110px" data-pet="busy"></div>
+        <b>3. 일함</b>
+        <small>파일을 읽고 고치고<br>답을 말풍선에 띄운다</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>로그인은 이미 되어 있어요.</b> 쓰던 Claude Code 계정을 그대로 씁니다.
+      API 키를 따로 넣을 필요가 없어요.
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 2. 켜고 부르기 ==================== -->
+<section class="band">
+  <div class="wrap">
+    <span class="step-no">준비물</span>
+    <h2>먼저 Claude Code가 있어야 해요</h2>
+    <p class="lead">이 앱은 Claude Code를 예쁘게 부르는 창구예요. 뇌는 Claude Code가 담당해요.</p>
+
+    <div class="rules" style="margin-bottom:20px">
+      <div class="rule">
+        <div style="font-size:44px; text-align:center; width:86px">💻</div>
+        <div>
+          <b>Claude Code 설치 + 로그인</b>
+          <p>이미 쓰고 계시면 그대로 두면 돼요. 앱이 알아서 찾아 씁니다.
+             아직이라면 <b>claude.com/code</b> 에서 먼저 설치하세요.</p>
+        </div>
+      </div>
+      <div class="rule">
+        <div style="font-size:44px; text-align:center; width:86px">🪟</div>
+        <div>
+          <b>윈도우 10 / 11 (64비트)</b>
+          <p>맥·리눅스는 아직 지원하지 않아요.</p>
+        </div>
+      </div>
+    </div>
+
+    <p style="color:var(--muted); font-size:15px; margin-bottom:44px">
+      로그인은 <b>따로 할 게 없어요.</b> 쓰던 Claude Code 계정을 그대로 씁니다 — API 키를 넣을 필요가 없어요.
+    </p>
+
+    <h2>설치하고 켜기</h2>
+    <p class="lead">세 단계면 끝나요.</p>
+
+    <div class="cards c3" style="margin-bottom:26px">
+      <div class="card" style="text-align:center">
+        <span class="icon">⬇️</span>
+        <h3>1. 내려받기</h3>
+        <p>Releases 페이지에서<br><code>ClaudePet-Setup-x.x.x.exe</code></p>
+      </div>
+      <div class="card" style="text-align:center">
+        <span class="icon">📦</span>
+        <h3>2. 설치</h3>
+        <p>더블클릭 → 다음<br>관리자 권한 필요 없어요</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <span class="icon">🐾</span>
+        <h3>3. 끝</h3>
+        <p>바탕화면 <b>Claude Pet</b> 실행<br>화면 아래에서 걷기 시작해요</p>
+      </div>
+    </div>
+
+    <div class="note" style="margin-bottom:30px">
+      <b>"Windows의 PC 보호" 파란 창이 뜨면 —</b>
+      <b>추가 정보</b> → <b>실행</b> 을 누르세요.
+      개인이 만든 앱이라 코드 서명이 없어서 뜨는 안내예요.
+    </div>
+
+    <div class="cards c2" style="margin-top:26px">
+      <div class="card">
+        <span class="icon">👆</span>
+        <h3>캐릭터를 클릭</h3>
+        <p>말풍선이 열리고 닫혀요.<br>끌어다 다른 곳에 놓을 수도 있어요.</p>
+      </div>
+      <div class="card">
+        <span class="icon">⌨️</span>
+        <h3><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd></h3>
+        <p>캐릭터가 어디 있든, 무슨 창을 쓰고 있든<br>바로 말풍선을 부를 수 있어요.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>끄는 법 —</b> 화면 오른쪽 아래 시계 옆 트레이 아이콘을 우클릭 → <b>종료</b>.
+      같은 메뉴에서 <b>"윈도우 시작 시 실행"</b>도 켤 수 있어요.
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 3. 말풍선 지도 ==================== -->
+<section class="band alt">
+  <div class="wrap">
+    <span class="step-no">말풍선</span>
+    <h2>어디를 누르면 뭐가 되나</h2>
+    <p class="lead">버튼은 네 개뿐이에요.</p>
+
+    <div class="split">
+      <div class="shotwrap">
+        <img src="__IMG_BUBBLE_CHAT__" alt="말풍선 화면" />
+        <div class="pin" style="left:-17px; top:12px">1</div>
+        <div class="pin" style="left:336px; top:-19px">2</div>
+        <div class="pin" style="left:370px; top:-19px">3</div>
+        <div class="pin" style="left:-17px; top:250px">4</div>
+        <div class="pin" style="left:406px; top:258px">5</div>
+      </div>
+
+      <ul class="pinlist">
+        <li><span class="n">1</span><div><b>작업 폴더</b><small>지금 이 폴더의 파일만 봐요. 눌러서 다른 폴더로 바꿔요.</small></div></li>
+        <li><span class="n">2</span><div><b>새 대화 <code>↺</code></b><small>지금까지 한 얘기를 잊고 처음부터 시작해요.</small></div></li>
+        <li><span class="n">3</span><div><b>닫기 <code>✕</code></b><small>말풍선만 접어요. 대화는 남아 있어요. <kbd>Esc</kbd>도 같아요.</small></div></li>
+        <li><span class="n">4</span><div><b>입력창</b><small><kbd>Enter</kbd> 보내기 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 줄바꿈</small></div></li>
+        <li><span class="n">5</span><div><b>보내기 / 멈추기</b><small>답하는 중엔 ■ 로 바뀌어요. 누르면 중단. <kbd>Esc</kbd>도 같아요.</small></div></li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <b>앱을 껐다 켜도 대화가 이어져요.</b> 작업 폴더가 그대로라면요.
+      새로 시작하고 싶으면 <code>↺</code> 를 누르세요.
+    </div>
+
+    <div class="split" style="margin-top:40px; align-items:center">
+      <div class="shotwrap" style="margin:10px 20px">
+        <img src="__IMG_BUBBLE_HISTORY__" alt="지난 대화가 복원된 말풍선" style="width:330px" />
+      </div>
+      <div>
+        <h3 style="margin:0 0 6px; font-size:21px">다시 켰을 때</h3>
+        <p style="margin:0; color:var(--muted)">
+          <b>지난 대화</b> 선 아래로 전에 하던 얘기가 그대로 깔려요.
+          <b>여기부터 이어서</b> 선 밑이 이번에 새로 하는 얘기고요.
+          Claude도 그 맥락을 기억한 채로 답합니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 4. 기분 읽기 ==================== -->
+<section class="band">
+  <div class="wrap">
+    <span class="step-no">표정</span>
+    <h2>지금 뭐 하는 중인지 보기</h2>
+    <p class="lead">캐릭터 모습만 봐도 알 수 있어요.</p>
+
+    <div class="moods">
+      <div class="mood">
+        <div style="width:120px;height:120px;margin:0 auto" data-pet="walk"></div>
+        <b>걷는 중</b><small>할 일 없이 산책</small>
+      </div>
+      <div class="mood">
+        <div style="width:120px;height:120px;margin:0 auto" data-pet="idle"></div>
+        <b>쉬는 중</b><small>말풍선이 열려 있으면 멈춰요</small>
+      </div>
+      <div class="mood">
+        <div style="width:120px;height:120px;margin:0 auto" data-pet="busy"></div>
+        <b>생각 중</b><small>눈을 찡그리고 더듬이가 깜빡</small>
+      </div>
+      <div class="mood">
+        <div style="width:120px;height:120px;margin:0 auto" data-pet="held"></div>
+        <b>들려 있음</b><small>놓으면 바닥으로 툭 떨어져요</small>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:34px; align-items:center">
+      <div class="shotwrap" style="margin:10px 20px">
+        <img src="__IMG_PET_NOTIFY__" alt="알림 뱃지를 띄운 캐릭터" style="width:190px" />
+      </div>
+      <div>
+        <h3 style="margin:0 0 6px; font-size:21px">머리 위에 <b style="color:var(--clay)">!</b> 가 떴다면</h3>
+        <p style="margin:0; color:var(--muted)">
+          말풍선을 닫아둔 사이에 답이 다 나왔다는 뜻이에요.
+          캐릭터가 한 번 폴짝 뛰고, 윈도우 알림도 같이 와요.
+          클릭하면 뱃지가 사라지면서 답을 보여줘요.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 5. 허락 받기 ==================== -->
+<section class="band alt">
+  <div class="wrap">
+    <span class="step-no">안전장치</span>
+    <h2>위험한 일은 먼저 물어봐요</h2>
+    <p class="lead">파일을 고치거나 명령을 실행하기 전에 카드가 떠요. 누를 때까지 기다립니다.</p>
+
+    <div class="split">
+      <div class="shotwrap">
+        <img src="__IMG_BUBBLE_PERMISSION__" alt="권한 요청 카드" />
+      </div>
+      <div class="cards" style="gap:14px">
+        <div class="card"><h3>✅ 허용</h3><p>이번 한 번만 해도 좋다고 하기.</p></div>
+        <div class="card"><h3>♾️ 항상 허용</h3><p>앞으로 같은 종류는 안 묻게 하기.</p></div>
+        <div class="card"><h3>🚫 거부</h3><p>하지 말라고 하기. 다른 방법을 찾아요.</p></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>이미 허락해 둔 건 안 물어봐요.</b> 원래 쓰던 Claude Code 설정
+      (<code>~/.claude/settings.json</code>)을 그대로 따르기 때문이에요.
+      파일 읽기처럼 안전한 건 원래부터 안 물어봅니다.
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 6. 캐릭터 그림 바꾸기 ==================== -->
+<section class="band">
+  <div class="wrap">
+    <span class="step-no">직접 고치기 · 개발자용</span>
+    <h2>캐릭터를 내 그림으로 바꾸기</h2>
+    <p class="lead">
+      여기부터는 소스를 받아서 고치는 분들을 위한 내용이에요.
+      그냥 쓰실 분은 <b>넘기셔도 됩니다.</b>
+    </p>
+    <p style="color:var(--muted); font-size:15px; margin:-28px 0 40px">
+      소스는 GitHub 저장소에서 받고, <code>npm install</code> 후 <code>npm start</code> 로 띄우면 돼요.
+      그림 3장이면 지금 움직임에 그대로 붙습니다.
+    </p>
+
+    <div class="cards c3" style="margin-bottom:26px">
+      <div class="card" style="text-align:center">
+        <span class="icon">🧍</span><h3>idle.png</h3><p>가만히 있을 때</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <span class="icon">🚶</span><h3>walk.png</h3><p>걸어다닐 때</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <span class="icon">💭</span><h3>busy.png</h3><p>생각할 때</p>
+      </div>
+    </div>
+
+    <p><b>①</b> 그림 3장을 <code>assets/</code> 폴더에 넣고,
+       <b>②</b> <code>src/renderer/pet.html</code> 의 <code>&lt;g id="pet"&gt;</code> 안을 이걸로 바꾸고,</p>
+
+    <pre>&lt;<span class="k">g</span> id=<span class="s">"pet"</span>&gt;
+  &lt;<span class="k">image</span> class=<span class="s">"sprite s-idle"</span> href=<span class="s">"../../assets/idle.png"</span> width=<span class="s">"128"</span> height=<span class="s">"128"</span> /&gt;
+  &lt;<span class="k">image</span> class=<span class="s">"sprite s-walk"</span> href=<span class="s">"../../assets/walk.png"</span> width=<span class="s">"128"</span> height=<span class="s">"128"</span> /&gt;
+  &lt;<span class="k">image</span> class=<span class="s">"sprite s-busy"</span> href=<span class="s">"../../assets/busy.png"</span> width=<span class="s">"128"</span> height=<span class="s">"128"</span> /&gt;
+&lt;/<span class="k">g</span>&gt;</pre>
+
+    <p style="margin-top:20px"><b>③</b> <code>src/renderer/pet.css</code> 맨 아래에 이걸 붙이면 끝.</p>
+
+    <pre>.sprite { <span class="k">display</span>: none; }
+.mode-idle .s-idle,
+.mode-fall .s-idle,
+.mode-drag .s-idle { <span class="k">display</span>: block; }
+.mode-walk .s-walk { <span class="k">display</span>: block; }
+.busy      .s-busy { <span class="k">display</span>: block; }   <span class="c">/* busy가 이기도록 맨 뒤에 */</span></pre>
+
+    <h2 style="margin-top:56px; font-size:26px">그림 만들 때 지킬 것 4가지</h2>
+    <p class="lead" style="margin-bottom:24px">이거 네 개만 맞추면 어색해지지 않아요.</p>
+
+    <div class="rules">
+      <div class="rule">
+        <svg width="86" height="86" viewBox="0 0 128 140">
+          <rect x="1" y="1" width="126" height="126" fill="none" stroke="#EADCD1" stroke-width="2" stroke-dasharray="5 4"/>
+          <g transform="scale(0.62) translate(39,76)">
+            <ellipse cx="64" cy="78" rx="36" ry="33" fill="#D97757"/>
+            <rect x="44" y="102" width="15" height="22" rx="7.5" fill="#A8512F"/>
+            <rect x="69" y="102" width="15" height="22" rx="7.5" fill="#A8512F"/>
+          </g>
+          <line x1="0" y1="124" x2="128" y2="124" stroke="#3E7D5A" stroke-width="3"/>
+          <text x="64" y="137" text-anchor="middle" font-size="13" font-weight="700" fill="#3E7D5A">y ≈ 124</text>
+        </svg>
+        <div>
+          <b>발을 바닥에 붙이기</b>
+          <p>128칸 중 <b>아래에서 4칸 위</b>에 발이 오게. 더 위면 공중에 떠 보여요.</p>
+        </div>
+      </div>
+
+      <div class="rule">
+        <svg width="86" height="86" viewBox="0 0 128 140">
+          <rect x="14" y="14" width="100" height="100" fill="#F6D9CC" stroke="#D97757" stroke-width="2"/>
+          <circle cx="64" cy="64" r="34" fill="#D97757"/>
+          <text x="64" y="132" text-anchor="middle" font-size="13" font-weight="700" fill="#C9743B">네모 전체가 반응</text>
+        </svg>
+        <div>
+          <b>투명한 곳도 눌려요</b>
+          <p>그림으로 바꾸면 <b>빈 구석까지</b> 클릭 판정에 들어가요. 정확히 하려면 모양대로 투명한 <code>&lt;path&gt;</code>를 위에 덮으세요.</p>
+        </div>
+      </div>
+
+      <div class="rule">
+        <svg width="86" height="86" viewBox="0 0 128 140">
+          <ellipse cx="64" cy="100" rx="40" ry="9" fill="#000" opacity=".15"/>
+          <circle cx="64" cy="66" r="30" fill="#D97757"/>
+          <line x1="24" y1="118" x2="104" y2="82" stroke="#C0392B" stroke-width="4" stroke-linecap="round"/>
+          <text x="64" y="134" text-anchor="middle" font-size="13" font-weight="700" fill="#C0392B">그림자 중복 주의</text>
+        </svg>
+        <div>
+          <b>그림자는 하나만</b>
+          <p>앱이 바닥 그림자를 따로 그려요. 그림에 그림자를 넣었다면 <code>#shadow</code> 를 지우세요.</p>
+        </div>
+      </div>
+
+      <div class="rule">
+        <svg width="86" height="86" viewBox="0 0 128 140">
+          <rect x="4" y="4" width="120" height="120" fill="none" stroke="#D97757" stroke-width="3"/>
+          <rect x="30" y="30" width="68" height="68" fill="none" stroke="#EADCD1" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="64" y="70" text-anchor="middle" font-size="15" font-weight="800" fill="#8B7A71">128</text>
+          <text x="64" y="137" text-anchor="middle" font-size="13" font-weight="700" fill="#8B7A71">크기 바꾸면 3곳</text>
+        </svg>
+        <div>
+          <b>더 크게 하려면</b>
+          <p><code>PET_SIZE</code>(index.js) · <code>viewBox</code>(pet.html) · <code>#stage</code>(pet.css) <b>세 곳을 같이</b> 올려요.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>바꾼 모습 확인은</b> <code>npm run shot</code> →
+      <code>shots/pet-walk-3x.png</code> 를 열어보면 3배로 크게 볼 수 있어요.
+      <br>움직이는 GIF/APNG 한 장만 넣어도 됩니다 (그럼 걷기 모션은 그림이 알아서).
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 7. 손보고 싶을 때 ==================== -->
+<section class="band alt">
+  <div class="wrap">
+    <span class="step-no">직접 고치기 · 개발자용</span>
+    <h2>마음에 안 들면 여기를 고쳐요</h2>
+    <p class="lead">파일 하나에 역할 하나씩이에요.</p>
+
+    <div class="map">
+      <div class="row"><code>src/main/walker.js</code><span>걷는 속도 · 쉬는 빈도 · 떨어지는 힘</span></div>
+      <div class="row"><code>src/main/agent.js</code><span>답변 말투 (짧게/길게) · 매번 물어볼지 말지</span></div>
+      <div class="row"><code>src/renderer/bubble.css</code><span>말풍선 색과 글꼴</span></div>
+      <div class="row"><code>src/main/index.js</code><span>캐릭터 크기 · 말풍선 크기 · 단축키</span></div>
+      <div class="row"><code>src/renderer/pet.html · pet.css</code><span>캐릭터 모양과 움직임</span></div>
+    </div>
+
+    <div class="cards c2" style="margin-top:24px">
+      <div class="card">
+        <h3>파일 수정을 매번 안 묻게</h3>
+        <p><code>agent.js</code> 의 <code>permissionMode</code> 를
+           <code>'default'</code> → <code>'acceptEdits'</code> 로.</p>
+      </div>
+      <div class="card">
+        <h3>답을 더 길게 받고 싶다면</h3>
+        <p><code>agent.js</code> 의 <code>PERSONA</code> 에서
+           "짧게 쓰라"는 문장을 지우면 돼요.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:56px; font-size:26px">고친 뒤엔</h2>
+    <p class="lead" style="margin-bottom:20px">바로 확인하고, 괜찮으면 설치 파일을 새로 만들어요.</p>
+
+    <div class="map">
+      <div class="row"><code>npm start</code><span>고친 걸 바로 띄워서 확인</span></div>
+      <div class="row"><code>npm run e2e</code><span>Claude 연동이 안 깨졌는지 검사 (3~5분)</span></div>
+      <div class="row"><code>npm run dist</code><span>설치 파일 새로 만들기 → <code>dist/</code></span></div>
+      <div class="row"><code>npm run guide</code><span>이 설명서 다시 만들기</span></div>
+    </div>
+
+    <div class="note">
+      <b>실행 결과는 전부 <code>logs/</code> 폴더에 쌓여요.</b>
+      화면에 아무것도 안 나와도 정상이에요 — 거기를 열어보면 됩니다.
+    </div>
+  </div>
+</section>
+
+
+<!-- ==================== 8. 확인 필요 / 앞으로 ==================== -->
+<section class="band ink">
+  <div class="wrap">
+    <span class="step-no" style="color:#F2A98F">잘 안 될 때</span>
+    <h2>이럴 땐 이렇게</h2>
+    <p class="lead">대부분 아래 셋 중 하나예요.</p>
+
+    <div class="cards c3">
+      <div class="card">
+        <span class="icon">🤷</span>
+        <h3>"Claude Code를 못 찾았어요"</h3>
+        <p>Claude Code가 안 깔렸거나 다른 곳에 있어요.
+           설치 후 앱을 <b>다시 켜면</b> 찾습니다.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🙈</span>
+        <h3>캐릭터가 안 보여요</h3>
+        <p>다른 모니터로 갔을 수 있어요.
+           트레이 아이콘을 눌러 말풍선을 열면 그 옆에 있어요.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔇</span>
+        <h3>답이 안 와요</h3>
+        <p>말풍선을 열어보세요. 권한을 물어보는 카드가
+           <b>답을 기다리는 중</b>일 수 있어요.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:60px">이런 것도 돼요</h2>
+    <p class="lead">놓치기 쉬운 기능들이에요.</p>
+
+    <div class="todo">
+      <div class="card">
+        <span class="icon">📜</span>
+        <h3>지난 대화 다시 보기</h3>
+        <p>앱을 다시 켜면 말풍선에 <b>지난 대화</b>가 먼저 깔려요.
+           <b>여기부터 이어서</b> 선 아래가 이번에 한 얘기예요.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔔</span>
+        <h3>다 됐다고 알려주기</h3>
+        <p>말풍선을 닫아둔 사이 답이 다 나오면 캐릭터가 폴짝 뛰며
+           <b>!</b> 뱃지를 띄우고 윈도우 알림도 보내요.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔄</span>
+        <h3>알아서 최신으로</h3>
+        <p>새 버전이 나오면 조용히 받아뒀다가 다음에 켤 때 적용해요.
+           신경 쓸 게 없어요.</p>
+      </div>
+    </div>
+
+    <div class="note" style="background:#3B2E28; border-color:#F2A98F">
+      <b style="color:#F2A98F">작업 폴더를 잘 골라주세요 —</b>
+      Claude는 <b>지금 작업 폴더 안의 파일만</b> 봅니다.
+      말풍선 위쪽 경로를 눌러 원하는 프로젝트 폴더로 바꾸고 시작하세요.
+      폴더마다 대화가 따로 기억돼요.
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  Claude Pet · <a href="https://github.com/Jsim6342/claude-pet" data-url="https://github.com/Jsim6342/claude-pet">github.com/Jsim6342/claude-pet</a><br>
+  더 자세한 건 저장소의 <code>README.md</code> 에 있어요.
+</footer>
+
+<script>
+  const tpl = document.getElementById('petTpl');
+  for (const slot of document.querySelectorAll('[data-pet]')) {
+    const svg = tpl.content.firstElementChild.cloneNode(true);
+    const mode = slot.dataset.pet;
+    if (mode !== 'idle') svg.classList.add(mode);
+    slot.append(svg);
+  }
+</script>
+</body>
+</html>

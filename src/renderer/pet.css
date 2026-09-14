@@ -1,0 +1,305 @@
+:root {
+  --clay: #d97757;
+  --clay-dark: #bf6040;
+  --cream: #fbf0e8;
+  --ink: #3d2b24;
+  --blush: #e26d5c;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: grab;
+}
+
+body.dragging {
+  cursor: grabbing;
+}
+
+#stage {
+  display: block;
+  width: 128px;
+  height: 128px;
+  overflow: visible;
+}
+
+/* SVG에서 transform-origin이 예측 가능하게 동작하도록 */
+#stage * {
+  transform-box: fill-box;
+}
+
+/* ------------------------------------------------------------------- 색/형태 */
+
+#shadow {
+  fill: #000;
+  opacity: 0.16;
+  transform-origin: center;
+  animation: shadow-breathe 3.4s ease-in-out infinite;
+}
+
+#torso,
+.ear {
+  fill: var(--clay);
+}
+
+.ear {
+  transform-origin: 50% 100%;
+}
+
+#belly {
+  fill: var(--cream);
+  opacity: 0.92;
+}
+
+#tail {
+  fill: none;
+  stroke: var(--clay);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform-origin: 0% 100%;
+  animation: wag 1.8s ease-in-out infinite;
+}
+
+#antenna-stem {
+  fill: none;
+  stroke: var(--clay-dark);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+
+#antenna-dot {
+  fill: #f2a98f;
+}
+
+#antenna {
+  transform-origin: 20% 100%;
+  animation: antenna-sway 3.8s ease-in-out infinite;
+}
+
+.leg {
+  fill: #a8512f;
+  transform-origin: 50% 8%;
+}
+
+.eyeball {
+  fill: var(--ink);
+}
+
+.glint {
+  fill: #fff;
+  opacity: 0.9;
+}
+
+#eyes {
+  transform-origin: center;
+  animation: blink 5.2s ease-in-out infinite;
+}
+
+.blush {
+  fill: var(--blush);
+  opacity: 0.42;
+}
+
+#mouth {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+#body {
+  transform-origin: 50% 100%;
+  animation: breathe 3.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------- 방향 전환 */
+
+.facing-left #pet {
+  transform: scaleX(-1);
+  transform-origin: center;
+}
+
+/* -------------------------------------------------------------------- 걷기 */
+
+.mode-walk #body {
+  animation: breathe 3.4s ease-in-out infinite, bob 0.52s ease-in-out infinite;
+}
+
+.mode-walk #leg-l {
+  animation: step 0.52s ease-in-out infinite;
+}
+
+.mode-walk #leg-r {
+  animation: step 0.52s ease-in-out infinite;
+  animation-delay: -0.26s;
+}
+
+.mode-walk .ear {
+  animation: ear-jiggle 0.52s ease-in-out infinite;
+}
+
+.mode-walk #tail {
+  animation: wag 0.52s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ 떨어지기 */
+
+.mode-fall .leg,
+.mode-drag .leg {
+  animation: dangle 0.62s ease-in-out infinite;
+}
+
+.mode-drag #leg-r,
+.mode-fall #leg-r {
+  animation-delay: -0.31s;
+}
+
+.mode-drag #eyes,
+.mode-fall #eyes {
+  animation: none;
+  transform: scale(1.18);
+}
+
+.mode-drag #mouth,
+.mode-fall #mouth {
+  d: path('M 58 90 q 6 -4 12 0');
+}
+
+/* ---------------------------------------------------- 생각 중 (Claude 응답 대기) */
+
+.busy #antenna-dot {
+  animation: think-pulse 0.95s ease-in-out infinite;
+}
+
+.busy #antenna {
+  animation: antenna-sway 0.9s ease-in-out infinite;
+}
+
+.busy #eyes {
+  animation: none;
+  transform: scaleY(0.58);
+}
+
+.busy #mouth {
+  d: path('M 59 90 h 10');
+}
+
+/* ------------------------------------------------------------- 알림 뱃지 */
+
+#badge {
+  display: none;
+  transform-origin: center;
+}
+
+.notify #badge {
+  display: block;
+  animation: badge-pop 0.45s cubic-bezier(0.2, 1.5, 0.5, 1), badge-bob 1.7s ease-in-out 0.45s infinite;
+}
+
+#badge-bg {
+  fill: var(--cream);
+  stroke: var(--clay);
+  stroke-width: 3;
+}
+
+#badge-mark {
+  stroke: var(--clay);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+}
+
+#badge-dot {
+  fill: var(--clay);
+}
+
+/* -------------------------------------------------------------- 클릭 리액션 */
+
+#pet.react {
+  animation: hop 0.36s ease-out;
+}
+
+.facing-left #pet.react {
+  animation: hop-left 0.36s ease-out;
+}
+
+/* --------------------------------------------------------------- 키프레임 */
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.025, 0.975); }
+}
+
+@keyframes shadow-breathe {
+  0%, 100% { transform: scaleX(1); opacity: 0.16; }
+  50% { transform: scaleX(1.06); opacity: 0.13; }
+}
+
+@keyframes bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -3.5px; }
+}
+
+@keyframes step {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(-14deg); }
+}
+
+@keyframes dangle {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes ear-jiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes wag {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(11deg); }
+}
+
+@keyframes antenna-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
+}
+
+@keyframes think-pulse {
+  0%, 100% { transform: scale(1); fill: #f2a98f; }
+  50% { transform: scale(1.45); fill: #ffd9c9; }
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes badge-bob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.04); }
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-9px) scale(0.94, 1.08); }
+  70% { transform: translateY(0) scale(1.07, 0.93); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes hop-left {
+  0% { transform: scaleX(-1) translateY(0) scale(1, 1); }
+  30% { transform: scaleX(-1) translateY(-9px) scale(0.94, 1.08); }
+  70% { transform: scaleX(-1) translateY(0) scale(1.07, 0.93); }
+  100% { transform: scaleX(-1) translateY(0) scale(1, 1); }
+}

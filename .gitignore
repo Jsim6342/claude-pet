@@ -1,0 +1,8 @@
+node_modules/
+dist/
+logs/
+.logs/
+shots/
+
+# 아이콘은 빌드에 필요하므로 포함한다 (npm run icon 으로 재생성 가능)
+!build/icon.png
