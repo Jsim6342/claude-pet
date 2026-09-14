@@ -51,13 +51,17 @@ npm start
 ### 릴리스
 
 ```bash
-npm version patch          # 버전 올리기
-npm run dist               # 설치 파일 빌드
+npm version patch          # 버전 올리고 커밋·태그 생성
+git push --follow-tags     # 끝. 나머지는 GitHub이 한다
 ```
 
-`dist/` 의 `ClaudePet-Setup-*.exe`, `latest.yml`, `*.blockmap` 세 개를 GitHub Release에 올리면
-설치된 앱들이 6시간마다 확인해 알아서 받아간다. `latest.yml` 이 없으면 업데이트가 동작하지 않고,
-`.blockmap` 이 없으면 매번 전체 파일을 받는다.
+태그가 올라가면 `.github/workflows/release.yml` 이 윈도우 러너에서 빌드해
+Release를 만들고 설치 파일·`latest.yml`·`.blockmap` 을 올린다. 설치된 앱들은
+6시간마다 `latest.yml` 의 버전을 자기 버전과 비교해 다르면 받아간다.
+
+버전을 올리지 않으면 `latest.yml` 의 버전이 그대로라 앱이 업데이트를 인식하지 못한다.
+
+로컬에서 직접 굽고 싶으면 `npm run dist` (결과물은 `dist/`), 손으로 올리려면 `npm run release`.
 
 `npm start` 를 뺀 모든 스크립트는 출력을 `logs/` 로 보낸다. GUI 앱이 호출한 쪽 콘솔을
 물고 있으면 앱이 끝나도 파이프가 안 닫혀서 계속 매달리기 때문이다.
