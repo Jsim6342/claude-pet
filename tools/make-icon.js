@@ -20,22 +20,22 @@ const HTML = `<!doctype html><meta charset="utf-8">
 <svg viewBox="50 4 74 74">
   <defs>
     <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="82">
-      <stop offset="0" stop-color="#9CCEF0"/>
-      <stop offset="1" stop-color="#C9E8FB"/>
+      <stop offset="0" stop-color="#A2D1EF"/>
+      <stop offset="1" stop-color="#C4E5FA"/>
     </linearGradient>
   </defs>
 
-  <path d="M 95 33 C 96 22 101 16 107 17 C 112 22 112 30 107 36 Z" fill="#7BB0D8"/>
-  <circle cx="86" cy="52" r="27" fill="url(#fur)"/>
-  <path d="M 70 34 C 70 22 74 14 80 14 C 86 18 90 26 90 34 Z" fill="url(#fur)"/>
+  <path d="M 96 32 C 97 21 102 15 108 16 C 113 21 113 29 108 35 Z" fill="#88BEE4"/>
+  <circle cx="86" cy="52" r="29" fill="url(#fur)"/>
+  <path d="M 68 33 C 68 20 72 12 78 12 C 85 16 89 25 89 33 Z" fill="url(#fur)"/>
 
-  <ellipse cx="68" cy="58" rx="6" ry="3.4" fill="#74AED4" opacity=".34"/>
-  <ellipse cx="104" cy="58" rx="6" ry="3.4" fill="#74AED4" opacity=".34"/>
+  <ellipse cx="66" cy="59" rx="7.5" ry="4.2" fill="#8FC2DF" opacity=".26"/>
+  <ellipse cx="105" cy="59" rx="7.5" ry="4.2" fill="#8FC2DF" opacity=".26"/>
 
-  <g fill="none" stroke="#2F4A5C" stroke-linecap="round">
-    <path d="M 72 48 q 5.5 6 11 0" stroke-width="3"/>
-    <path d="M 92 48 q 5.5 6 11 0" stroke-width="3"/>
-    <path d="M 82 60 q 3.5 4 7 0 q 3.5 4 7 0" stroke-width="2.4" stroke-linejoin="round"/>
+  <g fill="none" stroke="#6690A8" stroke-linecap="round">
+    <path d="M 71 48 q 5.5 6 11 0" stroke-width="2.8"/>
+    <path d="M 91 48 q 5.5 6 11 0" stroke-width="2.8"/>
+    <path d="M 81 61 q 3.5 4 7 0 q 3.5 4 7 0" stroke-width="2.2" stroke-linejoin="round"/>
   </g>
 </svg>`;
 

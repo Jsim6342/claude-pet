@@ -4,9 +4,9 @@ const { nativeImage } = require('electron');
 
 const SIZE = 32; // 실제 픽셀. scaleFactor 2 → 화면에서는 16pt로 보인다.
 
-const FUR = [0x9c, 0xce, 0xf0];
-const FUR_FAR = [0x7b, 0xb0, 0xd8];
-const INK = [0x2f, 0x4a, 0x5c];
+const FUR = [0xa2, 0xd1, 0xef];
+const FUR_FAR = [0x88, 0xbe, 0xe4];
+const INK = [0x66, 0x90, 0xa8];
 
 /** premultiplied BGRA 버퍼에 도형 하나를 합성한다. inside()가 덮는 범위를 정한다. */
 function paint(buf, [r, g, b], bounds, inside) {

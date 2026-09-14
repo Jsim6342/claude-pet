@@ -162,50 +162,57 @@
     .c2,.c3,.c4,.moods,.rules,.todo{grid-template-columns:1fr}
   }
 
-  /* ================= 캐릭터 SVG (앱의 pet.css 와 같은 구성) ================= */
+  /* ============ 캐릭터 SVG — tools/sync-guide-pet.js 가 앱에서 복사해 온다 ============ */
   .pet{
     display:block; width:100%; height:100%; overflow:visible;
-    --cat:#9CCEF0; --cat-lit:#C9E8FB; --cat-far:#7BB0D8; --cat-far-lit:#9DCBE9;
-    --fur-ink:#2F4A5C; --fur-blush:#74AED4;
+    --cat:#A2D1EF; --cat-lit:#C4E5FA; --cat-far:#88BEE4; --cat-far-lit:#A6D3F1;
+    --fur-ink:#6690A8; --fur-blush:#8FC2DF; --fur-outline:#F6FCFF;
+    --fur-glow:rgba(122,172,206,.3);
   }
   .pet *{transform-box:fill-box}
-  .pet .shadow{fill:#000; opacity:.14}
-  .pet .fur-top{stop-color:var(--cat)}
-  .pet .fur-bottom{stop-color:var(--cat-lit)}
-  .pet .fur-far-top{stop-color:var(--cat-far)}
-  .pet .fur-far-bottom{stop-color:var(--cat-far-lit)}
-  .pet .torso,.pet .head,.pet .ear,.pet .leg{fill:url(#fur)}
+  .pet [data-part="pet"]{filter:drop-shadow(0 0 1.4px var(--fur-outline)) drop-shadow(0 1.5px 3px var(--fur-glow))}
+  .pet [data-part="shadow"]{fill:#000; opacity:.1}
+  .pet [data-part="badge"]{display:none}
+
+  .pet #fur-top{stop-color:var(--cat)}
+  .pet #fur-bottom{stop-color:var(--cat-lit)}
+  .pet #fur-far-top{stop-color:var(--cat-far)}
+  .pet #fur-far-bottom{stop-color:var(--cat-far-lit)}
+
+  .pet [data-part="torso"],.pet [data-part="head"],.pet .ear,.pet .leg,
+  .pet [data-part="fluff-rear"],.pet [data-part="fluff-chest"]{fill:url(#fur)}
   .pet .far{fill:url(#fur-far)}
-  .pet .tail{fill:none; stroke:var(--cat); stroke-width:13; stroke-linecap:round;
+
+  .pet [data-part="tail"]{fill:none; stroke:var(--cat); stroke-width:14; stroke-linecap:round;
              transform-origin:100% 100%; animation:tail-sway 2.6s ease-in-out infinite}
   .pet .ear{transform-origin:50% 100%}
   .pet .leg{transform-origin:50% 8%}
-  .pet .eye-arc{fill:none; stroke:var(--fur-ink); stroke-width:3; stroke-linecap:round}
+  .pet .eye-arc{fill:none; stroke:var(--fur-ink); stroke-width:2.8; stroke-linecap:round}
   .pet .eyeball{fill:var(--fur-ink)}
   .pet .glint{fill:#fff; opacity:.92}
-  .pet .eyes-open{opacity:0}
-  .pet .blush{fill:var(--fur-blush); opacity:.34}
-  .pet .mouth{fill:none; stroke:var(--fur-ink); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round}
-  .pet .body{transform-origin:50% 100%; animation:breathe 3.6s ease-in-out infinite}
+  .pet [data-part="eyes-open"]{opacity:0}
+  .pet .blush{fill:var(--fur-blush); opacity:.26}
+  .pet [data-part="mouth"]{fill:none; stroke:var(--fur-ink); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+  .pet [data-part="body"]{transform-origin:50% 100%; animation:breathe 3.6s ease-in-out infinite}
 
   .pet.walk .leg-a{animation:step .5s ease-in-out infinite}
   .pet.walk .leg-b{animation:step .5s ease-in-out infinite; animation-delay:-.25s}
-  .pet.walk .body{animation:breathe 3.6s ease-in-out infinite, bob .5s ease-in-out infinite}
-  .pet.walk .tail{animation:tail-sway .5s ease-in-out infinite}
+  .pet.walk [data-part="body"]{animation:breathe 3.6s ease-in-out infinite, bob .5s ease-in-out infinite}
+  .pet.walk [data-part="tail"]{animation:tail-sway .5s ease-in-out infinite}
   .pet.walk .ear{animation:jiggle .5s ease-in-out infinite}
 
-  .pet.busy .eyes-closed{opacity:0}
-  .pet.busy .eyes-open{opacity:1; animation:look-up 1.6s ease-in-out infinite}
-  .pet.busy .mouth{d:path('M 85 61 h 7')}
+  .pet.busy [data-part="eyes-closed"]{opacity:0}
+  .pet.busy [data-part="eyes-open"]{opacity:1; animation:look-up 1.6s ease-in-out infinite}
+  .pet.busy [data-part="mouth"]{d:path('M 85 62 h 7')}
   .pet.busy .ear{animation:ear-perk 1.2s ease-in-out infinite}
-  .pet.busy .tail{animation:tail-flick .7s ease-in-out infinite}
+  .pet.busy [data-part="tail"]{animation:tail-flick .7s ease-in-out infinite}
 
   .pet.held .leg{animation:dangle .6s ease-in-out infinite}
   .pet.held .leg-b{animation-delay:-.3s}
-  .pet.held .eyes-closed{opacity:0}
-  .pet.held .eyes-open{opacity:1; transform:scale(1.15); transform-origin:center}
-  .pet.held .mouth{d:path('M 84 61 q 4 -4 8 0')}
-  .pet.held .shadow{opacity:.06}
+  .pet.held [data-part="eyes-closed"]{opacity:0}
+  .pet.held [data-part="eyes-open"]{opacity:1; transform:scale(1.15); transform-origin:center}
+  .pet.held [data-part="mouth"]{d:path('M 84 62 q 4 -4 8 0')}
+  .pet.held [data-part="shadow"]{opacity:.06}
 
   @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.018,.982)}}
   @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -3px}}
@@ -223,52 +230,66 @@
 <!-- 캐릭터 원본. JS로 복제해서 여기저기 심는다 -->
 <template id="petTpl">
   <svg class="pet" viewBox="0 0 128 128" aria-hidden="true">
+    <!-- PET:START -->
     <defs>
-      <!-- 여러 번 복제돼도 id가 같으면 첫 정의를 함께 쓴다. 모양이 같아 문제없다. -->
-      <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
-        <stop class="fur-top" offset="0"/>
-        <stop class="fur-bottom" offset="1"/>
-      </linearGradient>
-      <linearGradient id="fur-far" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
-        <stop class="fur-far-top" offset="0"/>
-        <stop class="fur-far-bottom" offset="1"/>
-      </linearGradient>
-    </defs>
-
-    <ellipse class="shadow" cx="56" cy="124" rx="42" ry="4.5"/>
-    <path class="tail" d="M 22 78 C 3 74 0 52 13 40"/>
-
-    <g class="legs-far">
-      <rect class="leg far leg-a" x="24" y="88" width="15" height="36" rx="7.5"/>
-      <rect class="leg far leg-b" x="66" y="88" width="15" height="36" rx="7.5"/>
-    </g>
-
-    <path class="ear far" d="M 95 33 C 96 22 101 16 107 17 C 112 22 112 30 107 36 Z"/>
-
-    <g class="body">
-      <ellipse class="torso" cx="55" cy="80" rx="40" ry="22"/>
-      <circle class="head" cx="86" cy="52" r="27"/>
-      <path class="ear" d="M 70 34 C 70 22 74 14 80 14 C 86 18 90 26 90 34 Z"/>
-
-      <g class="eyes-closed">
-        <path class="eye-arc" d="M 72 48 q 5.5 6 11 0"/>
-        <path class="eye-arc" d="M 92 48 q 5.5 6 11 0"/>
+        
+        <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="26" x2="0" y2="122">
+          <stop id="fur-top" offset="0" />
+          <stop id="fur-bottom" offset="1" />
+        </linearGradient>
+        <linearGradient id="fur-far" gradientUnits="userSpaceOnUse" x1="0" y1="26" x2="0" y2="122">
+          <stop id="fur-far-top" offset="0" />
+          <stop id="fur-far-bottom" offset="1" />
+        </linearGradient>
+      </defs>
+      <ellipse data-part="shadow" cx="56" cy="124" rx="40" ry="4.5" />
+      <g data-part="pet">
+        
+        <path data-part="tail" d="M 26 74 C 12 70 10 52 19 44 C 22 40 27 41 28 45" />
+  
+        
+        <g data-part="legs-far">
+          <rect class="leg far leg-a" x="25" y="88" width="13" height="36" rx="6.5" />
+          <rect class="leg far leg-b" x="66" y="88" width="13" height="36" rx="6.5" />
+        </g>
+  
+        
+        <path data-part="ear-far" class="ear far" d="M 96 32 C 97 21 102 15 108 16 C 113 21 113 29 108 35 Z" />
+  
+        <g data-part="body">
+          
+          <ellipse data-part="torso" cx="54" cy="80" rx="39" ry="23" />
+          <circle data-part="fluff-rear" cx="26" cy="79" r="19" />
+          <circle data-part="fluff-chest" cx="76" cy="77" r="22" />
+          <circle data-part="head" cx="86" cy="52" r="29" />
+          <path data-part="ear-near" class="ear" d="M 68 33 C 68 20 72 12 78 12 C 85 16 89 25 89 33 Z" />
+  
+          <g data-part="face">
+            
+            <g data-part="eyes-closed">
+              <path class="eye-arc" d="M 71 48 q 5.5 6 11 0" />
+              <path class="eye-arc" d="M 91 48 q 5.5 6 11 0" />
+            </g>
+            
+            <g data-part="eyes-open">
+              <ellipse class="eyeball" cx="76.5" cy="49" rx="4.4" ry="5.4" />
+              <circle class="glint" cx="78.1" cy="46.9" r="1.7" />
+              <ellipse class="eyeball" cx="96.5" cy="49" rx="4.4" ry="5.4" />
+              <circle class="glint" cx="98.1" cy="46.9" r="1.7" />
+            </g>
+            <ellipse class="blush" cx="66" cy="59" rx="7.5" ry="4.2" />
+            <ellipse class="blush" cx="105" cy="59" rx="7.5" ry="4.2" />
+            <path data-part="mouth" d="M 81 61 q 3.5 4 7 0 q 3.5 4 7 0" />
+          </g>
+        </g>
+  
+        
+        <g data-part="legs-near">
+          <rect class="leg leg-b" x="36" y="88" width="13" height="36" rx="6.5" />
+          <rect class="leg leg-a" x="77" y="88" width="13" height="36" rx="6.5" />
+        </g>
       </g>
-      <g class="eyes-open">
-        <ellipse class="eyeball" cx="77.5" cy="49" rx="4.6" ry="5.6"/>
-        <circle class="glint" cx="79.2" cy="46.8" r="1.7"/>
-        <ellipse class="eyeball" cx="97.5" cy="49" rx="4.6" ry="5.6"/>
-        <circle class="glint" cx="99.2" cy="46.8" r="1.7"/>
-      </g>
-      <ellipse class="blush" cx="68" cy="58" rx="6" ry="3.4"/>
-      <ellipse class="blush" cx="104" cy="58" rx="6" ry="3.4"/>
-      <path class="mouth" d="M 82 60 q 3.5 4 7 0 q 3.5 4 7 0"/>
-    </g>
-
-    <g class="legs-near">
-      <rect class="leg leg-b" x="36" y="88" width="15" height="36" rx="7.5"/>
-      <rect class="leg leg-a" x="78" y="88" width="15" height="36" rx="7.5"/>
-    </g>
+    <!-- PET:END -->
   </svg>
 </template>
 
