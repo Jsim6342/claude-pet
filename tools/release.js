@@ -24,8 +24,14 @@ const tag = `v${version}`;
 
 const log = (...a) => console.log(...a);
 
-/** 자격증명 관리자에서 GitHub 토큰을 꺼낸다. */
+/**
+ * 토큰을 구한다. CI에서는 환경변수, 내 PC에서는 자격증명 관리자.
+ * 어느 쪽이든 값을 찍지 않는다.
+ */
 function getToken() {
+  const fromEnv = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+  if (fromEnv) return Promise.resolve(fromEnv);
+
   return new Promise((resolve, reject) => {
     const child = spawn('git', ['credential', 'fill'], { stdio: ['pipe', 'pipe', 'ignore'] });
     let out = '';
