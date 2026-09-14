@@ -121,11 +121,11 @@ body.dragging {
 
 /* 두 눈 모양을 겹쳐 두고 opacity로 바꾼다. display는 애니메이션이 안 되기 때문. */
 #eyes-open {
-  opacity: 0;
+  opacity: 1;
 }
 
 #eyes-closed {
-  opacity: 1;
+  opacity: 0;
 }
 
 .blush {
@@ -146,13 +146,13 @@ body.dragging {
   animation: breathe 3.6s ease-in-out infinite;
 }
 
-/* 감은 눈이 기본이라, 가끔 잠깐 뜨는 쪽이 자연스럽다 */
-#eyes-closed {
-  animation: peek-closed 7.5s infinite;
+/* 가끔 깜빡인다 */
+#eyes-open {
+  animation: blink-open 5.4s infinite;
 }
 
-#eyes-open {
-  animation: peek-open 7.5s infinite;
+#eyes-closed {
+  animation: blink-closed 5.4s infinite;
 }
 
 /* ---------------------------------------------------------------- 방향 전환 */
@@ -229,9 +229,11 @@ body.dragging {
   opacity: 0;
 }
 
+/* 눈을 뜬 게 기본이 됐으니, 생각 중일 땐 살짝 찡그리고 위를 본다 */
 .busy #eyes-open {
   opacity: 1;
-  animation: look-up 1.6s ease-in-out infinite;
+  transform-origin: center;
+  animation: think-eyes 1.6s ease-in-out infinite;
 }
 
 .busy #mouth {
@@ -331,20 +333,20 @@ body.dragging {
   50% { transform: rotate(16deg); }
 }
 
-@keyframes look-up {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2.2px); }
+@keyframes think-eyes {
+  0%, 100% { transform: translateY(0) scaleY(0.86); }
+  50% { transform: translateY(-2.2px) scaleY(0.78); }
 }
 
-/* 7.5초에 한 번, 0.15초쯤 눈을 뜬다 */
-@keyframes peek-closed {
-  0%, 92%, 96%, 100% { opacity: 1; }
-  93%, 95% { opacity: 0; }
+/* 5.4초에 한 번, 0.1초쯤 깜빡 */
+@keyframes blink-open {
+  0%, 94%, 97.5%, 100% { opacity: 1; }
+  95%, 96.5% { opacity: 0; }
 }
 
-@keyframes peek-open {
-  0%, 92%, 96%, 100% { opacity: 0; }
-  93%, 95% { opacity: 1; }
+@keyframes blink-closed {
+  0%, 94%, 97.5%, 100% { opacity: 0; }
+  95%, 96.5% { opacity: 1; }
 }
 
 @keyframes badge-pop {

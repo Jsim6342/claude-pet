@@ -53,15 +53,6 @@ function triangle(buf, color, [ax, ay], [bx, by], [cx, cy]) {
   });
 }
 
-/** 가로로 누운 둥근 막대 (감은 눈) */
-const bar = (buf, color, cx, cy, halfW, thick) =>
-  paint(
-    buf,
-    color,
-    [cx - halfW - 1, cy - thick - 1, cx + halfW + 1, cy + thick + 1],
-    (x, y) => Math.abs(y - cy) <= thick && Math.abs(x - cx) <= halfW
-  );
-
 /**
  * 트레이 아이콘을 코드로 그린다(별도 png 파일 없이 동작하게).
  * 전신은 16pt에서 뭉개지므로 얼굴만 담는다.
@@ -74,8 +65,8 @@ function makeTrayIcon() {
   triangle(buf, FUR, [5, 11], [9, 2], [15, 9]); // 가까운 귀
   circle(buf, FUR, 16, 18, 12.5); // 머리
 
-  bar(buf, INK, 11, 17, 2.6, 1.1); // 감은 왼쪽 눈
-  bar(buf, INK, 21, 17, 2.6, 1.1); // 감은 오른쪽 눈
+  circle(buf, INK, 11.5, 17, 2.6); // 왼쪽 눈
+  circle(buf, INK, 20.5, 17, 2.6); // 오른쪽 눈
 
   return nativeImage.createFromBitmap(buf, { width: SIZE, height: SIZE, scaleFactor: 2 });
 }

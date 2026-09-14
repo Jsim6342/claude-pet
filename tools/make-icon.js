@@ -32,11 +32,12 @@ const HTML = `<!doctype html><meta charset="utf-8">
   <ellipse cx="66" cy="59" rx="7.5" ry="4.2" fill="#8FC2DF" opacity=".26"/>
   <ellipse cx="105" cy="59" rx="7.5" ry="4.2" fill="#8FC2DF" opacity=".26"/>
 
-  <g fill="none" stroke="#6690A8" stroke-linecap="round">
-    <path d="M 71 48 q 5.5 6 11 0" stroke-width="2.8"/>
-    <path d="M 91 48 q 5.5 6 11 0" stroke-width="2.8"/>
-    <path d="M 81 61 q 3.5 4 7 0 q 3.5 4 7 0" stroke-width="2.2" stroke-linejoin="round"/>
-  </g>
+  <ellipse cx="76.5" cy="49" rx="5.2" ry="6.2" fill="#6690A8"/>
+  <circle cx="78.4" cy="46.6" r="1.9" fill="#fff" opacity=".92"/>
+  <ellipse cx="96.5" cy="49" rx="5.2" ry="6.2" fill="#6690A8"/>
+  <circle cx="98.4" cy="46.6" r="1.9" fill="#fff" opacity=".92"/>
+  <path d="M 81 61 q 3.5 4 7 0 q 3.5 4 7 0" fill="none" stroke="#6690A8"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
 
 app.whenReady().then(async () => {
