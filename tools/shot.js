@@ -23,13 +23,32 @@ module.exports = function shot({ petWin, bubbleWin, openBubble, send }) {
   (async () => {
     await wait(1200);
 
-    // 1) 걷는 모습
+    // 1) 색 테마별 · 상태별 모습
+    const setTheme = (name) =>
+      petWin.webContents.executeJavaScript(
+        `document.body.classList.toggle('theme-clay', ${name === 'clay'})`
+      );
+
+    for (const theme of ['blue', 'clay']) {
+      await setTheme(theme);
+      for (const [label, state] of [
+        ['idle', { mode: 'idle', facing: 1, busy: false }],
+        ['walk', { mode: 'walk', facing: 1, busy: false }],
+        ['busy', { mode: 'idle', facing: 1, busy: true }],
+        ['held', { mode: 'drag', facing: -1, busy: false }],
+      ]) {
+        send(petWin, 'pet:state', state);
+        await wait(350);
+        await save(petWin, `cat-${theme}-${label}`, 3);
+      }
+    }
+
+    await setTheme('blue');
     send(petWin, 'pet:state', { mode: 'walk', facing: 1, busy: false });
     await wait(300);
     await save(petWin, 'pet-walk');
     await save(petWin, 'pet-walk-3x', 3);
 
-    // 2) 생각하는 모습
     send(petWin, 'pet:state', { mode: 'idle', facing: -1, busy: true });
     await wait(300);
     await save(petWin, 'pet-busy');
@@ -122,11 +141,25 @@ module.exports = function shot({ petWin, bubbleWin, openBubble, send }) {
     await wait(120);
     const overBody = await wc.executeJavaScript('!!document.elementFromPoint(64,80)?.closest("#pet")');
 
+    await wc.executeJavaScript(`
+      window.__ev = [];
+      for (const t of ['pointerdown','pointerup','mousedown','mouseup','click']) {
+        window.addEventListener(t, () => window.__ev.push(t));
+      }
+    `);
+
     const before = bubbleWin.isVisible();
     at(hitOn.x, hitOn.y, 'mouseDown');
     at(hitOn.x, hitOn.y, 'mouseUp');
-    await wait(300);
-    const toggled = bubbleWin.isVisible() !== before;
+
+    // 고정 대기는 느린 실행에서 흔들린다 — 바뀔 때까지 짧게 폴링한다
+    let toggled = false;
+    for (let i = 0; i < 30 && !toggled; i++) {
+      await wait(100);
+      toggled = bubbleWin.isVisible() !== before;
+    }
+    const fired = await wc.executeJavaScript('window.__ev.join(",")');
+    console.log(`[click] 렌더러가 받은 이벤트: [${fired}]  (말풍선 보임: ${before} → ${bubbleWin.isVisible()})`);
 
     console.log(`[click] 캐릭터 위 판정=${overBody} (true 여야 함)`);
     console.log(`[click] 투명 모서리 판정=${overCorner} (false 여야 함)`);

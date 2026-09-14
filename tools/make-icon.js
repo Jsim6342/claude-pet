@@ -1,6 +1,7 @@
 'use strict';
-// 개발용: 캐릭터 SVG를 앱 아이콘용 512px PNG로 뽑는다.
+// 개발용: 캐릭터 얼굴을 앱 아이콘용 512px PNG로 뽑는다.
 // electron-builder가 이 png를 .ico 로 변환해 준다.
+// 전신은 작업표시줄 크기에서 뭉개져서, 아이콘은 얼굴만 쓴다.
 //   npx electron tools/make-icon.js
 
 const fs = require('node:fs');
@@ -10,31 +11,32 @@ const { app, BrowserWindow } = require('electron');
 const SIZE = 512;
 const OUT = path.join(__dirname, '..', 'build');
 
-// 아이콘은 그림자 없이, 캐릭터가 캔버스를 꽉 채우게 다시 배치한다.
+// pet.html 의 머리 부분과 같은 좌표. 얼굴이 꽉 차게 viewBox만 좁혔다.
 const HTML = `<!doctype html><meta charset="utf-8">
 <style>
   html,body{margin:0;background:transparent;overflow:hidden}
   svg{display:block;width:${SIZE}px;height:${SIZE}px}
-  *{transform-box:fill-box}
 </style>
-<!-- 캐릭터 전체(귀~꼬리 x26~118, 더듬이~발 y23~124)가 들어가는 정사각 영역 -->
-<svg viewBox="16 17 112 112">
-  <path d="M 96 92 C 110 92 118 82 113 70" fill="none" stroke="#D97757" stroke-width="8" stroke-linecap="round"/>
-  <ellipse cx="38" cy="44" rx="12" ry="14.5" fill="#D97757"/>
-  <ellipse cx="90" cy="44" rx="12" ry="14.5" fill="#D97757"/>
-  <path d="M 64 48 C 62 39 66 33 69 30" fill="none" stroke="#BF6040" stroke-width="3.4" stroke-linecap="round"/>
-  <circle cx="70" cy="28" r="5" fill="#F2A98F"/>
-  <rect x="44" y="102" width="15" height="22" rx="7.5" fill="#A8512F"/>
-  <rect x="69" y="102" width="15" height="22" rx="7.5" fill="#A8512F"/>
-  <ellipse cx="64" cy="78" rx="36" ry="33" fill="#D97757"/>
-  <ellipse cx="64" cy="88" rx="23" ry="19" fill="#FBF0E8" opacity=".92"/>
-  <ellipse cx="40" cy="84" rx="7.5" ry="4.4" fill="#E26D5C" opacity=".42"/>
-  <ellipse cx="88" cy="84" rx="7.5" ry="4.4" fill="#E26D5C" opacity=".42"/>
-  <ellipse cx="52" cy="74" rx="5" ry="6.6" fill="#2F241F"/>
-  <circle cx="53.6" cy="71.4" r="1.9" fill="#fff" opacity=".9"/>
-  <ellipse cx="76" cy="74" rx="5" ry="6.6" fill="#2F241F"/>
-  <circle cx="77.6" cy="71.4" r="1.9" fill="#fff" opacity=".9"/>
-  <path d="M 58 89 q 6 5.5 12 0" fill="none" stroke="#2F241F" stroke-width="2.6" stroke-linecap="round"/>
+<svg viewBox="50 4 74 74">
+  <defs>
+    <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="82">
+      <stop offset="0" stop-color="#9CCEF0"/>
+      <stop offset="1" stop-color="#C9E8FB"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M 95 33 C 96 22 101 16 107 17 C 112 22 112 30 107 36 Z" fill="#7BB0D8"/>
+  <circle cx="86" cy="52" r="27" fill="url(#fur)"/>
+  <path d="M 70 34 C 70 22 74 14 80 14 C 86 18 90 26 90 34 Z" fill="url(#fur)"/>
+
+  <ellipse cx="68" cy="58" rx="6" ry="3.4" fill="#74AED4" opacity=".34"/>
+  <ellipse cx="104" cy="58" rx="6" ry="3.4" fill="#74AED4" opacity=".34"/>
+
+  <g fill="none" stroke="#2F4A5C" stroke-linecap="round">
+    <path d="M 72 48 q 5.5 6 11 0" stroke-width="3"/>
+    <path d="M 92 48 q 5.5 6 11 0" stroke-width="3"/>
+    <path d="M 82 60 q 3.5 4 7 0 q 3.5 4 7 0" stroke-width="2.4" stroke-linejoin="round"/>
+  </g>
 </svg>`;
 
 app.whenReady().then(async () => {
@@ -58,5 +60,18 @@ app.whenReady().then(async () => {
 
   const { width, height } = img.getSize();
   console.log(`아이콘 저장: ${file} (${width}x${height})`);
+
+  // 트레이 아이콘도 확대해서 저장 — 16pt에서 알아볼 수 있는지 눈으로 확인용
+  const { makeTrayIcon } = require('../src/main/tray-icon');
+  const tray = makeTrayIcon();
+  const t = tray.getSize();
+  const trayFile = path.join(__dirname, '..', 'shots', 'tray-8x.png');
+  fs.mkdirSync(path.dirname(trayFile), { recursive: true });
+  fs.writeFileSync(
+    trayFile,
+    tray.resize({ width: t.width * 8, height: t.height * 8, quality: 'best' }).toPNG()
+  );
+  console.log(`트레이 아이콘 확대본: ${trayFile}`);
+
   app.exit(width >= 256 ? 0 : 1);
 });

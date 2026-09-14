@@ -162,51 +162,60 @@
     .c2,.c3,.c4,.moods,.rules,.todo{grid-template-columns:1fr}
   }
 
-  /* ================= 캐릭터 SVG ================= */
-  .pet{display:block; width:100%; height:100%; overflow:visible}
+  /* ================= 캐릭터 SVG (앱의 pet.css 와 같은 구성) ================= */
+  .pet{
+    display:block; width:100%; height:100%; overflow:visible;
+    --cat:#9CCEF0; --cat-lit:#C9E8FB; --cat-far:#7BB0D8; --cat-far-lit:#9DCBE9;
+    --fur-ink:#2F4A5C; --fur-blush:#74AED4;
+  }
   .pet *{transform-box:fill-box}
-  .pet .shadow{fill:#000; opacity:.15}
-  .pet .torso,.pet .ear{fill:var(--clay)}
-  .pet .belly{fill:var(--cream); opacity:.92}
-  .pet .tail{fill:none; stroke:var(--clay); stroke-width:8; stroke-linecap:round;
-             transform-origin:0% 100%; animation:wag 1.8s ease-in-out infinite}
-  .pet .stem{fill:none; stroke:var(--clay-deep); stroke-width:3.4; stroke-linecap:round}
-  .pet .dot{fill:#F2A98F}
-  .pet .antenna{transform-origin:20% 100%; animation:sway 3.8s ease-in-out infinite}
-  .pet .leg{fill:var(--leg); transform-origin:50% 8%}
-  .pet .eyeball{fill:var(--ink)}
-  .pet .glint{fill:#fff; opacity:.9}
-  .pet .eyes{transform-origin:center; animation:blink 5.2s ease-in-out infinite}
-  .pet .blush{fill:var(--blush); opacity:.42}
-  .pet .mouth{fill:none; stroke:var(--ink); stroke-width:2.6; stroke-linecap:round}
-  .pet .body{transform-origin:50% 100%; animation:breathe 3.4s ease-in-out infinite}
+  .pet .shadow{fill:#000; opacity:.14}
+  .pet .fur-top{stop-color:var(--cat)}
+  .pet .fur-bottom{stop-color:var(--cat-lit)}
+  .pet .fur-far-top{stop-color:var(--cat-far)}
+  .pet .fur-far-bottom{stop-color:var(--cat-far-lit)}
+  .pet .torso,.pet .head,.pet .ear,.pet .leg{fill:url(#fur)}
+  .pet .far{fill:url(#fur-far)}
+  .pet .tail{fill:none; stroke:var(--cat); stroke-width:13; stroke-linecap:round;
+             transform-origin:100% 100%; animation:tail-sway 2.6s ease-in-out infinite}
+  .pet .ear{transform-origin:50% 100%}
+  .pet .leg{transform-origin:50% 8%}
+  .pet .eye-arc{fill:none; stroke:var(--fur-ink); stroke-width:3; stroke-linecap:round}
+  .pet .eyeball{fill:var(--fur-ink)}
+  .pet .glint{fill:#fff; opacity:.92}
+  .pet .eyes-open{opacity:0}
+  .pet .blush{fill:var(--fur-blush); opacity:.34}
+  .pet .mouth{fill:none; stroke:var(--fur-ink); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round}
+  .pet .body{transform-origin:50% 100%; animation:breathe 3.6s ease-in-out infinite}
 
-  .pet.walk .body{animation:breathe 3.4s ease-in-out infinite, bob .52s ease-in-out infinite}
-  .pet.walk .leg-l{animation:step .52s ease-in-out infinite}
-  .pet.walk .leg-r{animation:step .52s ease-in-out infinite; animation-delay:-.26s}
-  .pet.walk .ear{animation:jiggle .52s ease-in-out infinite}
-  .pet.walk .tail{animation:wag .52s ease-in-out infinite}
+  .pet.walk .leg-a{animation:step .5s ease-in-out infinite}
+  .pet.walk .leg-b{animation:step .5s ease-in-out infinite; animation-delay:-.25s}
+  .pet.walk .body{animation:breathe 3.6s ease-in-out infinite, bob .5s ease-in-out infinite}
+  .pet.walk .tail{animation:tail-sway .5s ease-in-out infinite}
+  .pet.walk .ear{animation:jiggle .5s ease-in-out infinite}
 
-  .pet.busy .dot{animation:pulse .95s ease-in-out infinite}
-  .pet.busy .antenna{animation:sway .9s ease-in-out infinite}
-  .pet.busy .eyes{animation:none; transform:scaleY(.58)}
-  .pet.busy .mouth{d:path('M 59 90 h 10')}
+  .pet.busy .eyes-closed{opacity:0}
+  .pet.busy .eyes-open{opacity:1; animation:look-up 1.6s ease-in-out infinite}
+  .pet.busy .mouth{d:path('M 85 61 h 7')}
+  .pet.busy .ear{animation:ear-perk 1.2s ease-in-out infinite}
+  .pet.busy .tail{animation:tail-flick .7s ease-in-out infinite}
 
-  .pet.held .leg{animation:dangle .62s ease-in-out infinite}
-  .pet.held .leg-r{animation-delay:-.31s}
-  .pet.held .eyes{animation:none; transform:scale(1.18)}
-  .pet.held .mouth{d:path('M 58 90 q 6 -4 12 0')}
+  .pet.held .leg{animation:dangle .6s ease-in-out infinite}
+  .pet.held .leg-b{animation-delay:-.3s}
+  .pet.held .eyes-closed{opacity:0}
+  .pet.held .eyes-open{opacity:1; transform:scale(1.15); transform-origin:center}
+  .pet.held .mouth{d:path('M 84 61 q 4 -4 8 0')}
   .pet.held .shadow{opacity:.06}
 
-  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.975)}}
-  @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -3.5px}}
-  @keyframes step{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-14deg)}}
-  @keyframes dangle{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
-  @keyframes jiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-  @keyframes wag{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(11deg)}}
-  @keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(8deg)}}
-  @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
-  @keyframes pulse{0%,100%{transform:scale(1);fill:#F2A98F}50%{transform:scale(1.45);fill:#FFD9C9}}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.018,.982)}}
+  @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -3px}}
+  @keyframes step{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(-16deg)}}
+  @keyframes dangle{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+  @keyframes jiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  @keyframes ear-perk{0%,100%{transform:rotate(0) scaleY(1)}50%{transform:rotate(-6deg) scaleY(1.12)}}
+  @keyframes tail-sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+  @keyframes tail-flick{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(16deg)}}
+  @keyframes look-up{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.2px)}}
 </style>
 </head>
 <body>
@@ -214,30 +223,51 @@
 <!-- 캐릭터 원본. JS로 복제해서 여기저기 심는다 -->
 <template id="petTpl">
   <svg class="pet" viewBox="0 0 128 128" aria-hidden="true">
-    <ellipse class="shadow" cx="64" cy="125" rx="29" ry="4"/>
-    <path class="tail" d="M 96 92 C 110 92 118 82 113 70"/>
-    <ellipse class="ear" cx="38" cy="44" rx="12" ry="14.5"/>
-    <ellipse class="ear" cx="90" cy="44" rx="12" ry="14.5"/>
-    <g class="antenna">
-      <path class="stem" d="M 64 48 C 62 39 66 33 69 30"/>
-      <circle class="dot" cx="70" cy="28" r="5"/>
+    <defs>
+      <!-- 여러 번 복제돼도 id가 같으면 첫 정의를 함께 쓴다. 모양이 같아 문제없다. -->
+      <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
+        <stop class="fur-top" offset="0"/>
+        <stop class="fur-bottom" offset="1"/>
+      </linearGradient>
+      <linearGradient id="fur-far" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
+        <stop class="fur-far-top" offset="0"/>
+        <stop class="fur-far-bottom" offset="1"/>
+      </linearGradient>
+    </defs>
+
+    <ellipse class="shadow" cx="56" cy="124" rx="42" ry="4.5"/>
+    <path class="tail" d="M 22 78 C 3 74 0 52 13 40"/>
+
+    <g class="legs-far">
+      <rect class="leg far leg-a" x="24" y="88" width="15" height="36" rx="7.5"/>
+      <rect class="leg far leg-b" x="66" y="88" width="15" height="36" rx="7.5"/>
     </g>
-    <g class="legs">
-      <rect class="leg leg-l" x="44" y="102" width="15" height="22" rx="7.5"/>
-      <rect class="leg leg-r" x="69" y="102" width="15" height="22" rx="7.5"/>
-    </g>
+
+    <path class="ear far" d="M 95 33 C 96 22 101 16 107 17 C 112 22 112 30 107 36 Z"/>
+
     <g class="body">
-      <ellipse class="torso" cx="64" cy="78" rx="36" ry="33"/>
-      <ellipse class="belly" cx="64" cy="88" rx="23" ry="19"/>
-      <ellipse class="blush" cx="40" cy="84" rx="7.5" ry="4.4"/>
-      <ellipse class="blush" cx="88" cy="84" rx="7.5" ry="4.4"/>
-      <g class="eyes">
-        <ellipse class="eyeball" cx="52" cy="74" rx="5" ry="6.6"/>
-        <circle class="glint" cx="53.6" cy="71.4" r="1.9"/>
-        <ellipse class="eyeball" cx="76" cy="74" rx="5" ry="6.6"/>
-        <circle class="glint" cx="77.6" cy="71.4" r="1.9"/>
+      <ellipse class="torso" cx="55" cy="80" rx="40" ry="22"/>
+      <circle class="head" cx="86" cy="52" r="27"/>
+      <path class="ear" d="M 70 34 C 70 22 74 14 80 14 C 86 18 90 26 90 34 Z"/>
+
+      <g class="eyes-closed">
+        <path class="eye-arc" d="M 72 48 q 5.5 6 11 0"/>
+        <path class="eye-arc" d="M 92 48 q 5.5 6 11 0"/>
       </g>
-      <path class="mouth" d="M 58 89 q 6 5.5 12 0"/>
+      <g class="eyes-open">
+        <ellipse class="eyeball" cx="77.5" cy="49" rx="4.6" ry="5.6"/>
+        <circle class="glint" cx="79.2" cy="46.8" r="1.7"/>
+        <ellipse class="eyeball" cx="97.5" cy="49" rx="4.6" ry="5.6"/>
+        <circle class="glint" cx="99.2" cy="46.8" r="1.7"/>
+      </g>
+      <ellipse class="blush" cx="68" cy="58" rx="6" ry="3.4"/>
+      <ellipse class="blush" cx="104" cy="58" rx="6" ry="3.4"/>
+      <path class="mouth" d="M 82 60 q 3.5 4 7 0 q 3.5 4 7 0"/>
+    </g>
+
+    <g class="legs-near">
+      <rect class="leg leg-b" x="36" y="88" width="15" height="36" rx="7.5"/>
+      <rect class="leg leg-a" x="78" y="88" width="15" height="36" rx="7.5"/>
     </g>
   </svg>
 </template>
@@ -431,7 +461,7 @@
       </div>
       <div class="mood">
         <div style="width:120px;height:120px;margin:0 auto" data-pet="busy"></div>
-        <b>생각 중</b><small>눈을 찡그리고 더듬이가 깜빡</small>
+        <b>생각 중</b><small>눈을 뜨고 꼬리를 탁탁</small>
       </div>
       <div class="mood">
         <div style="width:120px;height:120px;margin:0 auto" data-pet="held"></div>

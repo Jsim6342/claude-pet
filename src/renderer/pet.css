@@ -1,9 +1,25 @@
+/* ── 색 테마 ────────────────────────────────────────────────
+   기본은 Claude 색(말풍선 UI와 같은 계열).
+   body 에 theme-blue 를 붙이면 레퍼런스 같은 파스텔 블루가 된다. */
 :root {
-  --clay: #d97757;
-  --clay-dark: #bf6040;
-  --cream: #fbf0e8;
-  --ink: #3d2b24;
-  --blush: #e26d5c;
+  --cat: #9ccef0; /* 위쪽 */
+  --cat-lit: #c9e8fb; /* 아래쪽 — 그라데이션 끝 */
+  --cat-far: #7bb0d8; /* 반대편 다리·귀 */
+  --cat-far-lit: #9dcbe9;
+  --outline: #f2fbff;
+  --ink: #2f4a5c;
+  --blush: #74aed4;
+}
+
+/* 따뜻한 주황 버전. body 에 theme-clay 를 붙이면 바뀐다. */
+body.theme-clay {
+  --cat: #e08a63;
+  --cat-lit: #f3b394;
+  --cat-far: #c4714e;
+  --cat-far-lit: #d99070;
+  --outline: #fff6ef;
+  --ink: #4a332a;
+  --blush: #e87a68;
 }
 
 html,
@@ -33,57 +49,61 @@ body.dragging {
   transform-box: fill-box;
 }
 
-/* ------------------------------------------------------------------- 색/형태 */
+/* ------------------------------------------------------------------- 실루엣 */
+
+/* 겹쳐 그린 조각들을 하나의 덩어리처럼 보이게 하는 스티커 테두리 */
+#pet {
+  filter: drop-shadow(0 0 1.6px var(--outline)) drop-shadow(0 0 1.6px var(--outline));
+}
 
 #shadow {
   fill: #000;
-  opacity: 0.16;
+  opacity: 0.14;
   transform-origin: center;
-  animation: shadow-breathe 3.4s ease-in-out infinite;
+  animation: shadow-breathe 3.6s ease-in-out infinite;
 }
 
+/* 그라데이션 색 지정 — stop-color 는 CSS 속성이라 변수가 통한다 */
+#fur-top { stop-color: var(--cat); }
+#fur-bottom { stop-color: var(--cat-lit); }
+#fur-far-top { stop-color: var(--cat-far); }
+#fur-far-bottom { stop-color: var(--cat-far-lit); }
+
 #torso,
-.ear {
-  fill: var(--clay);
+#head,
+.ear,
+.leg {
+  fill: url(#fur);
+}
+
+.far {
+  fill: url(#fur-far);
+}
+
+#tail {
+  fill: none;
+  stroke: var(--cat);
+  stroke-width: 13;
+  stroke-linecap: round;
+  transform-origin: 100% 100%;
+  animation: tail-sway 2.6s ease-in-out infinite;
 }
 
 .ear {
   transform-origin: 50% 100%;
 }
 
-#belly {
-  fill: var(--cream);
-  opacity: 0.92;
-}
-
-#tail {
-  fill: none;
-  stroke: var(--clay);
-  stroke-width: 8;
-  stroke-linecap: round;
-  transform-origin: 0% 100%;
-  animation: wag 1.8s ease-in-out infinite;
-}
-
-#antenna-stem {
-  fill: none;
-  stroke: var(--clay-dark);
-  stroke-width: 3.4;
-  stroke-linecap: round;
-}
-
-#antenna-dot {
-  fill: #f2a98f;
-}
-
-#antenna {
-  transform-origin: 20% 100%;
-  animation: antenna-sway 3.8s ease-in-out infinite;
-}
-
 .leg {
-  fill: #a8512f;
   transform-origin: 50% 8%;
+}
+
+/* ---------------------------------------------------------------------- 얼굴 */
+
+.eye-arc {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
 }
 
 .eyeball {
@@ -92,29 +112,43 @@ body.dragging {
 
 .glint {
   fill: #fff;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
-#eyes {
-  transform-origin: center;
-  animation: blink 5.2s ease-in-out infinite;
+/* 두 눈 모양을 겹쳐 두고 opacity로 바꾼다. display는 애니메이션이 안 되기 때문. */
+#eyes-open {
+  opacity: 0;
+}
+
+#eyes-closed {
+  opacity: 1;
 }
 
 .blush {
   fill: var(--blush);
-  opacity: 0.42;
+  opacity: 0.34;
 }
 
 #mouth {
   fill: none;
   stroke: var(--ink);
-  stroke-width: 2.6;
+  stroke-width: 2.4;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 #body {
   transform-origin: 50% 100%;
-  animation: breathe 3.4s ease-in-out infinite;
+  animation: breathe 3.6s ease-in-out infinite;
+}
+
+/* 감은 눈이 기본이라, 가끔 잠깐 뜨는 쪽이 자연스럽다 */
+#eyes-closed {
+  animation: peek-closed 7.5s infinite;
+}
+
+#eyes-open {
+  animation: peek-open 7.5s infinite;
 }
 
 /* ---------------------------------------------------------------- 방향 전환 */
@@ -126,67 +160,86 @@ body.dragging {
 
 /* -------------------------------------------------------------------- 걷기 */
 
+/* 대각선 걸음: leg-a(뒤쪽 반대편 + 앞쪽 가까운) 와 leg-b 가 번갈아 나간다 */
+.mode-walk .leg-a {
+  animation: step 0.5s ease-in-out infinite;
+}
+
+.mode-walk .leg-b {
+  animation: step 0.5s ease-in-out infinite;
+  animation-delay: -0.25s;
+}
+
 .mode-walk #body {
-  animation: breathe 3.4s ease-in-out infinite, bob 0.52s ease-in-out infinite;
-}
-
-.mode-walk #leg-l {
-  animation: step 0.52s ease-in-out infinite;
-}
-
-.mode-walk #leg-r {
-  animation: step 0.52s ease-in-out infinite;
-  animation-delay: -0.26s;
-}
-
-.mode-walk .ear {
-  animation: ear-jiggle 0.52s ease-in-out infinite;
+  animation: breathe 3.6s ease-in-out infinite, bob 0.5s ease-in-out infinite;
 }
 
 .mode-walk #tail {
-  animation: wag 0.52s ease-in-out infinite;
+  animation: tail-sway 0.5s ease-in-out infinite;
 }
 
-/* ------------------------------------------------------------------ 떨어지기 */
-
-.mode-fall .leg,
-.mode-drag .leg {
-  animation: dangle 0.62s ease-in-out infinite;
+.mode-walk .ear {
+  animation: ear-jiggle 0.5s ease-in-out infinite;
 }
 
-.mode-drag #leg-r,
-.mode-fall #leg-r {
-  animation-delay: -0.31s;
+/* ------------------------------------------------------------ 들림 / 떨어짐 */
+
+.mode-drag .leg,
+.mode-fall .leg {
+  animation: dangle 0.6s ease-in-out infinite;
 }
 
-.mode-drag #eyes,
-.mode-fall #eyes {
+.mode-drag .leg-b,
+.mode-fall .leg-b {
+  animation-delay: -0.3s;
+}
+
+.mode-drag #eyes-closed,
+.mode-fall #eyes-closed {
   animation: none;
-  transform: scale(1.18);
+  opacity: 0;
+}
+
+.mode-drag #eyes-open,
+.mode-fall #eyes-open {
+  animation: none;
+  opacity: 1;
+  transform: scale(1.15);
+  transform-origin: center;
 }
 
 .mode-drag #mouth,
 .mode-fall #mouth {
-  d: path('M 58 90 q 6 -4 12 0');
+  d: path('M 84 61 q 4 -4 8 0');
 }
 
-/* ---------------------------------------------------- 생각 중 (Claude 응답 대기) */
-
-.busy #antenna-dot {
-  animation: think-pulse 0.95s ease-in-out infinite;
+.mode-drag #tail,
+.mode-fall #tail {
+  animation: tail-sway 0.45s ease-in-out infinite;
 }
 
-.busy #antenna {
-  animation: antenna-sway 0.9s ease-in-out infinite;
-}
+/* ---------------------------------------------------- 생각 중 (응답 기다리는 중) */
 
-.busy #eyes {
+.busy #eyes-closed {
   animation: none;
-  transform: scaleY(0.58);
+  opacity: 0;
+}
+
+.busy #eyes-open {
+  opacity: 1;
+  animation: look-up 1.6s ease-in-out infinite;
 }
 
 .busy #mouth {
-  d: path('M 59 90 h 10');
+  d: path('M 85 61 h 7');
+}
+
+.busy .ear {
+  animation: ear-perk 1.2s ease-in-out infinite;
+}
+
+.busy #tail {
+  animation: tail-flick 0.7s ease-in-out infinite;
 }
 
 /* ------------------------------------------------------------- 알림 뱃지 */
@@ -202,19 +255,19 @@ body.dragging {
 }
 
 #badge-bg {
-  fill: var(--cream);
-  stroke: var(--clay);
+  fill: #fffdfa;
+  stroke: var(--cat-far);
   stroke-width: 3;
 }
 
 #badge-mark {
-  stroke: var(--clay);
+  stroke: var(--cat-far);
   stroke-width: 4.2;
   stroke-linecap: round;
 }
 
 #badge-dot {
-  fill: var(--clay);
+  fill: var(--cat-far);
 }
 
 /* -------------------------------------------------------------- 클릭 리액션 */
@@ -231,52 +284,63 @@ body.dragging {
 
 @keyframes breathe {
   0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.025, 0.975); }
+  50% { transform: scale(1.018, 0.982); }
 }
 
 @keyframes shadow-breathe {
-  0%, 100% { transform: scaleX(1); opacity: 0.16; }
-  50% { transform: scaleX(1.06); opacity: 0.13; }
+  0%, 100% { transform: scaleX(1); opacity: 0.14; }
+  50% { transform: scaleX(1.05); opacity: 0.11; }
 }
 
 @keyframes bob {
   0%, 100% { translate: 0 0; }
-  50% { translate: 0 -3.5px; }
+  50% { translate: 0 -3px; }
 }
 
 @keyframes step {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(-14deg); }
+  50% { transform: translateY(-7px) rotate(-16deg); }
 }
 
 @keyframes dangle {
-  0%, 100% { transform: rotate(-9deg); }
-  50% { transform: rotate(9deg); }
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
 }
 
 @keyframes ear-jiggle {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
 }
 
-@keyframes wag {
-  0%, 100% { transform: rotate(-9deg); }
-  50% { transform: rotate(11deg); }
+@keyframes ear-perk {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(-6deg) scaleY(1.12); }
 }
 
-@keyframes antenna-sway {
+@keyframes tail-sway {
   0%, 100% { transform: rotate(-7deg); }
-  50% { transform: rotate(8deg); }
+  50% { transform: rotate(9deg); }
 }
 
-@keyframes blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.08); }
+@keyframes tail-flick {
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(16deg); }
 }
 
-@keyframes think-pulse {
-  0%, 100% { transform: scale(1); fill: #f2a98f; }
-  50% { transform: scale(1.45); fill: #ffd9c9; }
+@keyframes look-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.2px); }
+}
+
+/* 7.5초에 한 번, 0.15초쯤 눈을 뜬다 */
+@keyframes peek-closed {
+  0%, 92%, 96%, 100% { opacity: 1; }
+  93%, 95% { opacity: 0; }
+}
+
+@keyframes peek-open {
+  0%, 92%, 96%, 100% { opacity: 0; }
+  93%, 95% { opacity: 1; }
 }
 
 @keyframes badge-pop {
@@ -292,14 +356,14 @@ body.dragging {
 
 @keyframes hop {
   0% { transform: translateY(0) scale(1, 1); }
-  30% { transform: translateY(-9px) scale(0.94, 1.08); }
-  70% { transform: translateY(0) scale(1.07, 0.93); }
+  30% { transform: translateY(-9px) scale(0.95, 1.07); }
+  70% { transform: translateY(0) scale(1.06, 0.94); }
   100% { transform: translateY(0) scale(1, 1); }
 }
 
 @keyframes hop-left {
   0% { transform: scaleX(-1) translateY(0) scale(1, 1); }
-  30% { transform: scaleX(-1) translateY(-9px) scale(0.94, 1.08); }
-  70% { transform: scaleX(-1) translateY(0) scale(1.07, 0.93); }
+  30% { transform: scaleX(-1) translateY(-9px) scale(0.95, 1.07); }
+  70% { transform: scaleX(-1) translateY(0) scale(1.06, 0.94); }
   100% { transform: scaleX(-1) translateY(0) scale(1, 1); }
 }

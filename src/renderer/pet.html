@@ -8,54 +8,76 @@
 </head>
 <body>
   <!--
-    캐릭터는 전부 인라인 SVG. 나중에 이미지로 바꾸려면 <g id="pet"> 안을
-    <image href="../../assets/pet.png" .../> 로 갈아끼우면 된다.
-    (자세한 교체 방법은 README 참고)
+    옆모습 고양이. 기본은 오른쪽을 보고 있고, .facing-left 가 좌우로 뒤집는다.
+    머리·몸통·다리를 같은 색으로 겹쳐 그려서 하나의 실루엣처럼 보이게 했다.
+
+    나중에 이미지로 바꾸려면 <g id="pet"> 안을 <image> 로 갈아끼우면 된다.
+    (자세한 방법은 README 참고)
   -->
   <svg id="stage" viewBox="0 0 128 128" class="mode-idle facing-right" aria-hidden="true">
-    <!-- 바닥 그림자: 캐릭터 판정에서 제외하려고 pet 그룹 밖에 둔다 -->
-    <ellipse id="shadow" cx="64" cy="125" rx="29" ry="4" />
+    <defs>
+      <!--
+        몸 전체를 가로지르는 세로 그라데이션. userSpaceOnUse 라서 머리·몸통·다리가
+        각자 따로 칠해지지 않고 하나의 덩어리처럼 이어진다.
+        색은 pet.css 의 stop-color 가 정한다.
+      -->
+      <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
+        <stop id="fur-top" offset="0" />
+        <stop id="fur-bottom" offset="1" />
+      </linearGradient>
+      <linearGradient id="fur-far" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="120">
+        <stop id="fur-far-top" offset="0" />
+        <stop id="fur-far-bottom" offset="1" />
+      </linearGradient>
+    </defs>
+
+    <!-- 바닥 그림자: 클릭 판정에서 빼려고 pet 그룹 밖에 둔다 -->
+    <ellipse id="shadow" cx="56" cy="124" rx="42" ry="4.5" />
 
     <g id="pet">
       <!-- 꼬리 (몸통 뒤) -->
-      <path id="tail" d="M 96 92 C 110 92 118 82 113 70" />
+      <path id="tail" d="M 22 78 C 3 74 0 52 13 40" />
 
-      <!-- 귀 (몸통 뒤) -->
-      <ellipse class="ear" id="ear-l" cx="38" cy="44" rx="12" ry="14.5" />
-      <ellipse class="ear" id="ear-r" cx="90" cy="44" rx="12" ry="14.5" />
-
-      <!-- 더듬이 -->
-      <g id="antenna">
-        <path id="antenna-stem" d="M 64 48 C 62 39 66 33 69 30" />
-        <circle id="antenna-dot" cx="70" cy="28" r="5" />
+      <!-- 반대편 다리 — 살짝 어둡게 해서 깊이를 준다 -->
+      <g id="legs-far">
+        <rect class="leg far leg-a" x="24" y="88" width="15" height="36" rx="7.5" />
+        <rect class="leg far leg-b" x="66" y="88" width="15" height="36" rx="7.5" />
       </g>
 
-      <!-- 다리 -->
-      <g id="legs">
-        <rect class="leg" id="leg-l" x="44" y="102" width="15" height="22" rx="7.5" />
-        <rect class="leg" id="leg-r" x="69" y="102" width="15" height="22" rx="7.5" />
-      </g>
+      <!-- 반대편 귀 -->
+      <path id="ear-far" class="ear far" d="M 95 33 C 96 22 101 16 107 17 C 112 22 112 30 107 36 Z" />
 
-      <!-- 몸통 -->
       <g id="body">
-        <ellipse id="torso" cx="64" cy="78" rx="36" ry="33" />
-        <ellipse id="belly" cx="64" cy="88" rx="23" ry="19" />
+        <!-- 몸통과 머리를 겹쳐 하나의 덩어리로 -->
+        <ellipse id="torso" cx="55" cy="80" rx="40" ry="22" />
+        <circle id="head" cx="86" cy="52" r="27" />
 
-        <ellipse class="blush" cx="40" cy="84" rx="7.5" ry="4.4" />
-        <ellipse class="blush" cx="88" cy="84" rx="7.5" ry="4.4" />
+        <!-- 가까운 쪽 귀 -->
+        <path id="ear-near" class="ear" d="M 70 34 C 70 22 74 14 80 14 C 86 18 90 26 90 34 Z" />
 
-        <g id="eyes">
-          <g class="eye">
-            <ellipse class="eyeball" cx="52" cy="74" rx="5" ry="6.6" />
-            <circle class="glint" cx="53.6" cy="71.4" r="1.9" />
+        <g id="face">
+          <!-- 평소엔 기분 좋게 감은 눈 -->
+          <g id="eyes-closed">
+            <path class="eye-arc" d="M 72 48 q 5.5 6 11 0" />
+            <path class="eye-arc" d="M 92 48 q 5.5 6 11 0" />
           </g>
-          <g class="eye">
-            <ellipse class="eyeball" cx="76" cy="74" rx="5" ry="6.6" />
-            <circle class="glint" cx="77.6" cy="71.4" r="1.9" />
+          <!-- 놀라거나 생각할 때 뜨는 눈 -->
+          <g id="eyes-open">
+            <ellipse class="eyeball" cx="77.5" cy="49" rx="4.6" ry="5.6" />
+            <circle class="glint" cx="79.2" cy="46.8" r="1.7" />
+            <ellipse class="eyeball" cx="97.5" cy="49" rx="4.6" ry="5.6" />
+            <circle class="glint" cx="99.2" cy="46.8" r="1.7" />
           </g>
+          <ellipse class="blush" cx="68" cy="58" rx="6" ry="3.4" />
+          <ellipse class="blush" cx="104" cy="58" rx="6" ry="3.4" />
+          <path id="mouth" d="M 82 60 q 3.5 4 7 0 q 3.5 4 7 0" />
         </g>
+      </g>
 
-        <path id="mouth" d="M 58 89 q 6 5.5 12 0" />
+      <!-- 가까운 쪽 다리 (몸통 앞) -->
+      <g id="legs-near">
+        <rect class="leg leg-b" x="36" y="88" width="15" height="36" rx="7.5" />
+        <rect class="leg leg-a" x="78" y="88" width="15" height="36" rx="7.5" />
       </g>
     </g>
 
@@ -64,9 +86,9 @@
       평소엔 숨어 있고 .notify 일 때만 보인다.
     -->
     <g id="badge">
-      <circle id="badge-bg" cx="101" cy="26" r="15" />
-      <path id="badge-mark" d="M 101 19 v 8" />
-      <circle id="badge-dot" cx="101" cy="32.6" r="2.4" />
+      <circle id="badge-bg" cx="108" cy="20" r="15" />
+      <path id="badge-mark" d="M 108 13 v 8" />
+      <circle id="badge-dot" cx="108" cy="26.6" r="2.4" />
     </g>
   </svg>
 
