@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+  <!-- img-src 에 data: 를 허용해야 붙여넣은 이미지 썸네일이 보인다 -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src data:;" />
   <title>말풍선</title>
   <link rel="stylesheet" href="bubble.css" />
 </head>
@@ -14,14 +15,17 @@
         <span id="title">Claude</span>
         <button id="btn-cwd" class="path" title="작업 폴더 변경">~</button>
         <span class="spacer"></span>
+        <button id="btn-mode" class="mode" title="권한 모드 전환">묻기</button>
         <button id="btn-new" class="icon" title="새 대화 시작">&#8635;</button>
         <button id="btn-close" class="icon" title="닫기 (Esc)">&#10005;</button>
       </header>
 
       <div id="log" tabindex="-1"></div>
 
+      <div id="attachments" hidden></div>
+
       <div id="composer">
-        <textarea id="input" rows="1" placeholder="무엇을 해볼까요?" title="Enter 전송 · Shift+Enter 줄바꿈"></textarea>
+        <textarea id="input" rows="1" placeholder="무엇을 해볼까요?" title="Enter 전송 · Shift+Enter 줄바꿈 · Ctrl+V 이미지 붙여넣기 · / 로 명령"></textarea>
         <button id="btn-send" class="send" title="보내기">&#8593;</button>
         <button id="btn-stop" class="stop" title="중단" hidden>&#9632;</button>
       </div>

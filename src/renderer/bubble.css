@@ -125,6 +125,84 @@ body.busy #status {
   color: var(--ink);
 }
 
+/* 권한 모드 배지 겸 버튼 */
+.mode {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font: 700 10.5px/1 inherit;
+  padding: 4px 8px;
+  border-radius: 99px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mode:hover {
+  border-color: var(--clay);
+  color: var(--ink);
+}
+
+.mode[data-mode="acceptEdits"] {
+  background: #fdf0e8;
+  border-color: var(--clay);
+  color: var(--clay-deep);
+}
+
+.mode[data-mode="plan"] {
+  background: #eaf1f6;
+  border-color: #7ba3bd;
+  color: #3d6a86;
+}
+
+/* 붙여넣은 이미지 목록 */
+#attachments {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 8px 0;
+  background: var(--paper2);
+  border-top: 1px solid var(--line);
+}
+
+.chip {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.chip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.chip button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 17px;
+  height: 17px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(47, 36, 31, 0.72);
+  color: #fff;
+  font-size: 10px;
+  line-height: 17px;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* 파일을 끌어다 놓는 중 */
+body.dropping #card {
+  outline: 2px dashed var(--clay);
+  outline-offset: -4px;
+}
+
 button.icon {
   width: 22px;
   height: 22px;
@@ -248,6 +326,74 @@ button.icon:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 도구 실행 결과 — 기본은 접혀 있다 */
+.tool.has-result {
+  cursor: pointer;
+  align-items: center;
+}
+
+.tool .caret {
+  flex: none;
+  color: var(--muted);
+  font-size: 9px;
+  transition: transform 0.12s;
+}
+
+.tool.open .caret {
+  transform: rotate(90deg);
+}
+
+.tool-out {
+  margin: -2px 0 2px 14px;
+  padding: 7px 10px;
+  max-height: 190px;
+  overflow: auto;
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: 11.5px/1.6 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.tool-out.error {
+  background: #fdf0ee;
+  border-color: #e8c9c2;
+  color: var(--danger);
+}
+
+/* 파일 수정 미리보기 */
+.diff {
+  margin: 0 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+  font: 11px/1.55 ui-monospace, Consolas, monospace;
+  max-height: 150px;
+  overflow-y: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.diff div {
+  padding: 1px 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.diff .del {
+  background: #fdeceb;
+  color: #a8332a;
+}
+
+.diff .add {
+  background: #ecf6ef;
+  color: #2f6b45;
 }
 
 .divider {

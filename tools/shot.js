@@ -107,6 +107,26 @@ module.exports = function shot({ petWin, bubbleWin, openBubble, send }) {
     await wait(400);
     await save(bubbleWin, 'bubble-history');
 
+    // 3-c) 도구 결과 펼침 + 이미지 첨부 + 명령 결과
+    send(bubbleWin, 'chat:reset', { reason: '' });
+    await wait(200);
+    send(bubbleWin, 'chat:local', {
+      text: '문맥 ████░░░░░░░░░░░░░░░░ **19%**\n\n38.2k / 200.0k 토큰',
+    });
+    send(bubbleWin, 'chat:event', { type: 'tool', id: 't1', name: 'Bash', input: { command: 'npm test' } });
+    send(bubbleWin, 'chat:event', {
+      type: 'tool-result',
+      toolUseId: 't1',
+      isError: false,
+      text: 'PASS  src/login.test.js\n  ✓ 비밀번호가 해시로 저장된다 (12ms)\n  ✓ 틀린 비밀번호는 거부된다 (4ms)\n\nTests: 2 passed, 2 total',
+    });
+    await wait(300);
+    await bubbleWin.webContents.executeJavaScript(
+      `document.querySelector('.tool.has-result')?.click()` // 접힌 결과를 펼쳐서 찍는다
+    );
+    await wait(300);
+    await save(bubbleWin, 'bubble-toolresult');
+
     // 4) 권한 요청 카드
     send(bubbleWin, 'chat:permission', {
       id: 'demo',

@@ -25,6 +25,7 @@ const { Walker } = require('./walker');
 const { makeTrayIcon } = require('./tray-icon');
 const { resolveClaudeCli } = require('./cli-path');
 const updater = require('./updater');
+const commands = require('./commands');
 
 const PET_SIZE = 128;
 const BUBBLE_W = 400;
@@ -402,14 +403,39 @@ function wireIpc() {
   ipcMain.on('pet:context-menu', () => tray?.popUpContextMenu());
 
   // --- 말풍선
-  ipcMain.on('chat:send', (_e, text) => {
-    const trimmed = String(text || '').trim();
-    if (!trimmed) return;
+  ipcMain.on('chat:send', async (_e, payload) => {
+    // 예전 형태(문자열)와 새 형태({text, images})를 모두 받는다
+    const { text = '', images = [] } = typeof payload === 'string' ? { text: payload } : payload || {};
+    const trimmed = String(text).trim();
+    if (!trimmed && !images.length) return;
+
     if (!cliPath) {
       send(bubbleWin, 'chat:event', { type: 'error', message: CLI_MISSING });
       return;
     }
-    agent.send(trimmed).catch((err) => {
+
+    try {
+      // 슬래시 명령이면 먼저 가로챈다 (스킬 명령은 null 을 돌려줘 그대로 흘러간다)
+      if (!images.length && trimmed.startsWith('/')) {
+        const result = await commands.run(trimmed, {
+          agent,
+          actions: { newSession, pickCwd },
+        });
+        if (result?.handled) {
+          if (result.notice) send(bubbleWin, 'chat:notice', { text: result.notice });
+          if (result.text) send(bubbleWin, 'chat:local', { text: result.text });
+          return;
+        }
+      }
+
+      await agent.send(trimmed, images);
+    } catch (err) {
+      send(bubbleWin, 'chat:event', { type: 'error', message: String(err?.message || err) });
+    }
+  });
+
+  ipcMain.on('chat:permission-mode', (_e, mode) => {
+    agent?.setPermissionMode(mode).catch((err) => {
       send(bubbleWin, 'chat:event', { type: 'error', message: String(err?.message || err) });
     });
   });

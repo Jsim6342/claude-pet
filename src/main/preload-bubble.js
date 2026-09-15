@@ -5,7 +5,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 const on = (channel) => (cb) => ipcRenderer.on(channel, (_e, payload) => cb(payload));
 
 contextBridge.exposeInMainWorld('chat', {
-  send: (text) => ipcRenderer.send('chat:send', text),
+  send: (text, images) => ipcRenderer.send('chat:send', { text, images }),
+  setPermissionMode: (mode) => ipcRenderer.send('chat:permission-mode', mode),
   stop: () => ipcRenderer.send('chat:stop'),
   close: () => ipcRenderer.send('chat:close'),
   newSession: () => ipcRenderer.send('chat:new-session'),
@@ -15,6 +16,7 @@ contextBridge.exposeInMainWorld('chat', {
 
   onEvent: on('chat:event'),
   onHistory: on('chat:history'),
+  onLocal: on('chat:local'),
   onPermission: on('chat:permission'),
   onSession: on('chat:session'),
   onReset: on('chat:reset'),

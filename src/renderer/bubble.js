@@ -6,6 +6,21 @@ const input = document.getElementById('input');
 const btnSend = document.getElementById('btn-send');
 const btnStop = document.getElementById('btn-stop');
 const btnCwd = document.getElementById('btn-cwd');
+const btnMode = document.getElementById('btn-mode');
+const attachments = document.getElementById('attachments');
+
+/** 보낼 때 같이 실어 보낼 이미지들 */
+const pending = [];
+
+/** 도구 실행 결과를 붙일 자리 — tool_use_id 로 찾는다 */
+const toolRows = new Map();
+
+const MODES = [
+  { id: 'default', label: '묻기', hint: '위험한 작업은 물어봅니다' },
+  { id: 'acceptEdits', label: '자동 승인', hint: '파일 수정을 묻지 않습니다' },
+  { id: 'plan', label: '계획만', hint: '파일을 고치지 않고 계획만 세웁니다' },
+];
+let modeIndex = 0;
 
 let stream = null; // 지금 스트리밍 중인 assistant 말풍선
 let thinkingEl = null;
@@ -92,7 +107,12 @@ function showEmptyState() {
     Object.assign(document.createElement('kbd'), { textContent: 'Shift+Enter' }),
     document.createTextNode(' 줄바꿈 · '),
     Object.assign(document.createElement('kbd'), { textContent: 'Esc' }),
-    document.createTextNode(' 닫기')
+    document.createTextNode(' 닫기'),
+    document.createElement('br'),
+    Object.assign(document.createElement('kbd'), { textContent: 'Ctrl+V' }),
+    document.createTextNode(' 이미지 붙여넣기 · '),
+    Object.assign(document.createElement('kbd'), { textContent: '/help' }),
+    document.createTextNode(' 명령 목록')
   );
   div.append(hint);
   log.append(div);
@@ -192,17 +212,44 @@ window.chat.onEvent((event) => {
       endThinking();
       const row = document.createElement('div');
       row.className = 'tool';
+      const caret = document.createElement('span');
+      caret.className = 'caret';
+      caret.textContent = '▶';
       const name = document.createElement('b');
       name.textContent = event.name;
       const arg = document.createElement('span');
       arg.textContent = toolSummary(event.input);
-      row.append(name, arg);
+      row.append(caret, name, arg);
       add(row);
+      if (event.id) toolRows.set(event.id, row);
+      break;
+    }
+
+    case 'tool-result': {
+      const row = toolRows.get(event.toolUseId);
+      if (!row || !event.text?.trim()) break;
+
+      const out = document.createElement('div');
+      out.className = event.isError ? 'tool-out error' : 'tool-out';
+      out.textContent = event.text.length > 4000 ? `${event.text.slice(0, 4000)}\n…(생략)` : event.text;
+      out.hidden = true;
+      row.after(out);
+
+      row.classList.add('has-result');
+      row.addEventListener('click', () => {
+        out.hidden = !out.hidden;
+        row.classList.toggle('open', !out.hidden);
+        scroll();
+      });
       break;
     }
 
     case 'busy':
       setBusy(event.busy);
+      break;
+
+    case 'permission-mode':
+      syncMode(event.mode);
       break;
 
     case 'result':
@@ -337,11 +384,17 @@ window.chat.onPermission((req) => {
     card.append(desc);
   }
 
-  const detail = detailOf(req.input);
-  if (detail) {
-    const pre = document.createElement('pre');
-    pre.textContent = detail;
-    card.append(pre);
+  // 파일 수정이면 JSON 대신 바뀌는 줄만 보여준다
+  const diff = diffView(req.input);
+  if (diff) {
+    card.append(diff);
+  } else {
+    const detail = detailOf(req.input);
+    if (detail) {
+      const pre = document.createElement('pre');
+      pre.textContent = detail;
+      card.append(pre);
+    }
   }
 
   const actions = document.createElement('div');
@@ -377,6 +430,27 @@ window.chat.onPermission((req) => {
   focusTarget?.focus();
 });
 
+/** Edit 도구의 old_string/new_string 을 줄 단위로 비교해 보여준다. */
+function diffView(input) {
+  const before = input?.old_string;
+  const after = input?.new_string;
+  if (typeof before !== 'string' || typeof after !== 'string') return null;
+
+  const box = document.createElement('div');
+  box.className = 'diff';
+
+  const line = (text, cls) => {
+    const el = document.createElement('div');
+    el.className = cls;
+    el.textContent = (cls === 'del' ? '- ' : '+ ') + text;
+    box.append(el);
+  };
+
+  for (const text of before.split('\n')) line(text, 'del');
+  for (const text of after.split('\n')) line(text, 'add');
+  return box;
+}
+
 function detailOf(value) {
   if (value == null) return '';
   if (typeof value === 'string') return value;
@@ -406,16 +480,105 @@ function autoGrow() {
   btnSend.disabled = input.value.trim().length === 0;
 }
 
+/* ------------------------------------------------------------ 이미지 첨부 */
+
+const MAX_IMAGES = 5;
+
+function addImage(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  if (pending.length >= MAX_IMAGES) {
+    notice(`이미지는 한 번에 ${MAX_IMAGES}장까지예요.`);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = String(reader.result);
+    const comma = dataUrl.indexOf(',');
+    const item = { mediaType: file.type, data: dataUrl.slice(comma + 1), dataUrl };
+    pending.push(item);
+    renderAttachments();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderAttachments() {
+  attachments.replaceChildren();
+  attachments.hidden = pending.length === 0;
+
+  pending.forEach((item, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+
+    const img = document.createElement('img');
+    img.src = item.dataUrl;
+    img.alt = `첨부 이미지 ${i + 1}`;
+
+    const remove = document.createElement('button');
+    remove.textContent = '✕';
+    remove.title = '빼기';
+    remove.addEventListener('click', () => {
+      pending.splice(i, 1);
+      renderAttachments();
+    });
+
+    chip.append(img, remove);
+    attachments.append(chip);
+  });
+
+  autoGrow();
+}
+
+input.addEventListener('paste', (e) => {
+  const files = [...(e.clipboardData?.items || [])]
+    .filter((it) => it.kind === 'file' && it.type.startsWith('image/'))
+    .map((it) => it.getAsFile());
+  if (!files.length) return;
+  e.preventDefault(); // 이미지가 있으면 텍스트 붙여넣기는 막는다
+  files.forEach(addImage);
+});
+
+// 창 어디에든 파일을 끌어다 놓을 수 있게
+for (const type of ['dragenter', 'dragover']) {
+  window.addEventListener(type, (e) => {
+    e.preventDefault();
+    document.body.classList.add('dropping');
+  });
+}
+for (const type of ['dragleave', 'drop']) {
+  window.addEventListener(type, () => document.body.classList.remove('dropping'));
+}
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  [...(e.dataTransfer?.files || [])].forEach(addImage);
+});
+
+/* -------------------------------------------------------------------- 전송 */
+
 function submit() {
   const text = input.value.trim();
-  if (!text) return;
+  if (!text && !pending.length) return;
 
   const bubble = document.createElement('div');
   bubble.className = 'msg user';
-  bubble.textContent = text;
+  if (text) bubble.textContent = text;
+
+  for (const item of pending) {
+    const img = document.createElement('img');
+    img.src = item.dataUrl;
+    img.alt = '보낸 이미지';
+    img.style.maxWidth = '160px';
+    img.style.borderRadius = '8px';
+    img.style.display = 'block';
+    img.style.marginTop = text ? '6px' : '0';
+    bubble.append(img);
+  }
   add(bubble);
 
-  window.chat.send(text);
+  window.chat.send(text, pending.map(({ mediaType, data }) => ({ mediaType, data })));
+  pending.length = 0;
+  renderAttachments();
+
   input.value = '';
   autoGrow();
   pinned = true;
@@ -437,6 +600,32 @@ window.addEventListener('keydown', (e) => {
   else window.chat.close();
 });
 
+/* --------------------------------------------------------------- 권한 모드 */
+
+function applyMode(index, tell = true) {
+  modeIndex = (index + MODES.length) % MODES.length;
+  const mode = MODES[modeIndex];
+  btnMode.textContent = mode.label;
+  btnMode.dataset.mode = mode.id;
+  btnMode.title = `${mode.hint}\n눌러서 전환`;
+  if (tell) window.chat.setPermissionMode(mode.id);
+}
+
+btnMode.addEventListener('click', () => applyMode(modeIndex + 1));
+
+/** 메인이 모드를 바꿨을 때(슬래시 명령 등) 버튼도 따라간다 */
+function syncMode(id) {
+  const i = MODES.findIndex((m) => m.id === id);
+  if (i >= 0 && i !== modeIndex) applyMode(i, false);
+}
+
+/** 명령 결과처럼 Claude를 거치지 않고 앱이 직접 쓰는 말풍선 */
+window.chat.onLocal(({ text }) => {
+  endStream();
+  const el = add(Object.assign(document.createElement('div'), { className: 'msg assistant' }));
+  el.append(renderMarkdown(text));
+});
+
 btnSend.addEventListener('click', submit);
 btnStop.addEventListener('click', () => window.chat.stop());
 btnCwd.addEventListener('click', () => window.chat.pickCwd());
@@ -444,4 +633,6 @@ document.getElementById('btn-new').addEventListener('click', () => window.chat.n
 document.getElementById('btn-close').addEventListener('click', () => window.chat.close());
 
 showEmptyState();
+renderAttachments();
+applyMode(0, false); // 버튼 표시만 맞춘다 (메인에 굳이 알리지 않음)
 autoGrow();

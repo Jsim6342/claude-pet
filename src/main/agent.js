@@ -53,6 +53,19 @@ In every other respect behave exactly as you normally do: use your tools to read
 search, and edit files in the working directory.
 `.trim();
 
+/** tool_result 의 content 는 문자열일 수도, 블록 배열일 수도 있다. */
+function toolResultText(content) {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .map((block) => {
+      if (block?.type === 'text') return block.text;
+      if (block?.type === 'image') return '[이미지]';
+      return '';
+    })
+    .join('');
+}
+
 /** SessionMessage의 content에서 사람이 읽을 텍스트만 뽑는다. */
 function textOf(content) {
   if (typeof content === 'string') return content;
@@ -133,6 +146,7 @@ class Agent {
     this.resumedWith = null; // 이어받기를 시도한 세션 id
     this.gotInit = false; // init 메시지를 받았는가 = 세션이 실제로 열렸는가
     this.lastText = null; // 이어받기 실패 시 다시 보낼 메시지
+    this.permissionMode = 'default';
   }
 
   async start({ resume } = {}) {
@@ -193,6 +207,8 @@ class Agent {
         if (message.subtype === 'init') {
           this.gotInit = true;
           this.sessionId = message.session_id;
+          this.model = message.model;
+          this.permissionMode = message.permissionMode || this.permissionMode;
           this.onEvent({
             type: 'init',
             sessionId: message.session_id,
@@ -217,10 +233,23 @@ class Agent {
         return;
       }
 
+      case 'user':
+        // 도구 실행 결과가 여기로 돌아온다. 말풍선에서 접었다 펼 수 있게 넘긴다.
+        for (const block of message.message?.content || []) {
+          if (block?.type !== 'tool_result') continue;
+          this.onEvent({
+            type: 'tool-result',
+            toolUseId: block.tool_use_id,
+            isError: Boolean(block.is_error),
+            text: toolResultText(block.content),
+          });
+        }
+        return;
+
       case 'assistant':
         for (const block of message.message?.content || []) {
           if (block.type === 'tool_use') {
-            this.onEvent({ type: 'tool', name: block.name, input: block.input });
+            this.onEvent({ type: 'tool', id: block.id, name: block.name, input: block.input });
           }
         }
         if (message.error) {
@@ -243,15 +272,41 @@ class Agent {
     }
   }
 
-  async send(text) {
+  /**
+   * @param {string} text
+   * @param {Array<{mediaType: string, data: string}>} images base64 (data: 접두사 없이)
+   */
+  async send(text, images = []) {
     this.lastText = text;
     if (!this.running) await this.start({ resume: this.sessionId });
     this.#setBusy(true);
-    this.queue.push({
-      type: 'user',
-      parent_tool_use_id: null,
-      message: { role: 'user', content: text },
-    });
+
+    // 이미지가 없으면 그냥 문자열로 보낸다(기존 동작 유지)
+    const content = images.length
+      ? [
+          ...images.map((img) => ({
+            type: 'image',
+            source: { type: 'base64', media_type: img.mediaType, data: img.data },
+          })),
+          ...(text ? [{ type: 'text', text }] : []),
+        ]
+      : text;
+
+    this.queue.push({ type: 'user', parent_tool_use_id: null, message: { role: 'user', content } });
+  }
+
+  /** 권한 모드 전환 (default / acceptEdits / plan). 세션이 살아 있어야 한다. */
+  async setPermissionMode(mode) {
+    if (!this.running) await this.start({ resume: this.sessionId });
+    await this.query.setPermissionMode(mode);
+    this.permissionMode = mode;
+    this.onEvent({ type: 'permission-mode', mode });
+  }
+
+  /** 슬래시 명령이 쓸 조회용 메서드들. 세션이 없으면 먼저 띄운다. */
+  async control(name, ...args) {
+    if (!this.running) await this.start({ resume: this.sessionId });
+    return this.query[name](...args);
   }
 
   /**
