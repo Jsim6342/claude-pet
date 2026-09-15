@@ -29,6 +29,10 @@ ipcMain.on('chat:resume-session', (_e, payload) => resumed.push(payload));
 
 const $ = (js) => js;
 
+// hidden 프로퍼티만 보면 CSS 가 display 를 덮어써도 통과해 버린다.
+// 실제로 레이아웃에서 빠졌는지(offsetParent)를 본다.
+const GONE = (id) => `document.getElementById('${id}').offsetParent === null`;
+
 app.whenReady().then(async () => {
   const win = new BrowserWindow({
     width: 400,
@@ -54,7 +58,8 @@ app.whenReady().then(async () => {
   const run = (js) => win.webContents.executeJavaScript(js);
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  const closedFirst = await run($(`document.getElementById('sessions').hidden`));
+  const closedFirst = await run(GONE('sessions'));
+  const chipsGone = await run(GONE('attachments'));
 
   await run($(`document.getElementById('btn-history').click()`));
   await wait(400);
@@ -62,7 +67,7 @@ app.whenReady().then(async () => {
   const opened = JSON.parse(
     await run(
       $(`JSON.stringify({
-        hidden: document.getElementById('sessions').hidden,
+        shown: document.getElementById('sessions').offsetParent !== null,
         btnOn: document.getElementById('btn-history').classList.contains('on'),
         rows: [...document.querySelectorAll('.session')].map((el) => ({
           title: el.querySelector('.title').textContent,
@@ -90,7 +95,7 @@ app.whenReady().then(async () => {
   // 지금 보고 있는 대화를 고르면 이어받기를 보내지 않고 닫기만 해야 한다
   await run($(`document.querySelectorAll('.session')[0].click()`));
   await wait(200);
-  const afterSame = await run($(`document.getElementById('sessions').hidden`));
+  const afterSame = await run(GONE('sessions'));
   const resumedAfterSame = resumed.length; // 아래에서 더 클릭하므로 여기서 세어 둔다
 
   // 다른 대화를 고르면 이어받기 요청이 나가야 한다
@@ -104,11 +109,12 @@ app.whenReady().then(async () => {
   await wait(400);
   await run($(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))`));
   await wait(150);
-  const afterEsc = await run($(`document.getElementById('sessions').hidden`));
+  const afterEsc = await run(GONE('sessions'));
 
   const checks = [
     ['처음엔 목록이 접혀 있다', closedFirst === true],
-    ['버튼을 누르면 펼쳐진다', opened.hidden === false && opened.btnOn === true],
+    ['첨부 줄도 비었을 땐 안 보인다', chipsGone === true],
+    ['버튼을 누르면 펼쳐진다', opened.shown === true && opened.btnOn === true],
     ['목록이 로그를 덮는다', opened.covers === true],
     ['세 줄이 그려졌다', opened.rows.length === 3],
     ['지금 대화에 표시가 붙는다', opened.rows[0]?.current === true && !opened.rows[1]?.current],

@@ -164,6 +164,10 @@ body.busy #status {
   border-top: 1px solid var(--line);
 }
 
+#attachments[hidden] {
+  display: none;
+}
+
 .chip {
   position: relative;
   width: 54px;
@@ -239,6 +243,11 @@ button.icon.on {
   display: flex;
   flex-direction: column;
   background: var(--paper);
+}
+
+/* id 선택자가 [hidden]의 display:none 을 이기므로 여기서 다시 눌러준다 */
+#sessions[hidden] {
+  display: none;
 }
 
 .sessions-head {
