@@ -1,6 +1,6 @@
 {
   "name": "claude-pet",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "바탕화면을 돌아다니는 캐릭터에게 말풍선으로 Claude Code를 시키는 데스크톱 펫",
   "main": "src/main/index.js",
@@ -9,6 +9,8 @@
     "debug": "cross-env PET_DEBUG=1 electron . > logs/debug.log 2>&1",
     "e2e": "node tools/e2e.js > logs/e2e.log 2>&1",
     "tracker": "node tools/test-tracker.js > logs/tracker.log 2>&1",
+    "sessions": "node tools/test-sessions.js > logs/sessions.log 2>&1",
+    "sessions:ui": "electron tools/probe-sessions.js > logs/sessions-ui.log 2>&1",
     "shot": "cross-env PET_SHOT=1 electron . > logs/shot.log 2>&1",
     "selftest": "cross-env PET_SELFTEST=1 electron . > logs/selftest.log 2>&1",
     "procs": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/list-claude-procs.ps1 > logs/procs.txt 2>&1",
