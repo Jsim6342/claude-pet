@@ -7,6 +7,9 @@ const btnSend = document.getElementById('btn-send');
 const btnStop = document.getElementById('btn-stop');
 const btnCwd = document.getElementById('btn-cwd');
 const btnMode = document.getElementById('btn-mode');
+const btnHistory = document.getElementById('btn-history');
+const sessionsPanel = document.getElementById('sessions');
+const sessionList = document.getElementById('session-list');
 const attachments = document.getElementById('attachments');
 
 /** 보낼 때 같이 실어 보낼 이미지들 */
@@ -22,6 +25,7 @@ const MODES = [
 ];
 let modeIndex = 0;
 
+let currentSessionId = null; // 목록에서 "지금 이 대화"를 표시하려고 들고 있는다
 let stream = null; // 지금 스트리밍 중인 assistant 말풍선
 let thinkingEl = null;
 let busy = false;
@@ -287,7 +291,8 @@ function toolSummary(input) {
   return candidate.length > 100 ? `${candidate.slice(0, 100)}…` : candidate;
 }
 
-window.chat.onSession(({ cwd, model }) => {
+window.chat.onSession(({ cwd, model, sessionId }) => {
+  currentSessionId = sessionId || null;
   if (cwd) {
     btnCwd.textContent = cwd;
     btnCwd.title = `작업 폴더: ${cwd}${model ? `\n모델: ${model}` : ''}\n클릭하면 변경`;
@@ -295,6 +300,7 @@ window.chat.onSession(({ cwd, model }) => {
 });
 
 window.chat.onReset(({ reason }) => {
+  closeSessions();
   showEmptyState();
   stream = null;
   thinkingEl = null;
@@ -363,9 +369,106 @@ window.chat.onFocusInput(() => {
   scroll();
 });
 
+/* ------------------------------------------------------------ 지난 대화 목록 */
+
+function relativeTime(ms) {
+  if (!ms) return '';
+  const minutes = Math.floor((Date.now() - ms) / 60000);
+  if (minutes < 1) return '방금';
+  if (minutes < 60) return `${minutes}분 전`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return '어제';
+  if (days < 7) return `${days}일 전`;
+
+  const d = new Date(ms);
+  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+}
+
+function sessionsMessage(text) {
+  const div = document.createElement('div');
+  div.className = 'sessions-empty';
+  div.textContent = text;
+  sessionList.replaceChildren(div);
+}
+
+function renderSessions({ items = [], currentId = null, error = '' }) {
+  if (error) {
+    sessionsMessage(`목록을 못 가져왔어요.\n${error}`);
+    return;
+  }
+  if (!items.length) {
+    sessionsMessage('이 폴더에서 나눈 대화가 아직 없어요.');
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+
+  for (const item of items) {
+    const row = document.createElement('button');
+    row.className = 'session';
+    if (item.sessionId === (currentId || currentSessionId)) row.classList.add('current');
+
+    const title = document.createElement('span');
+    title.className = 'title';
+    title.textContent = item.title || '(제목 없는 대화)';
+
+    const meta = document.createElement('span');
+    meta.className = 'meta';
+    meta.textContent = [relativeTime(item.lastModified), item.gitBranch].filter(Boolean).join(' · ');
+
+    row.append(title, meta);
+    row.title = `${item.title || ''}\n${item.sessionId}`;
+    row.addEventListener('click', () => {
+      closeSessions();
+      if (item.sessionId === (currentId || currentSessionId)) return;
+      window.chat.resumeSession(item.sessionId, item.cwd);
+    });
+
+    frag.append(row);
+  }
+
+  sessionList.replaceChildren(frag);
+}
+
+async function openSessions() {
+  sessionsPanel.hidden = false;
+  btnHistory.classList.add('on');
+  sessionsMessage('불러오는 중…');
+
+  let result;
+  try {
+    result = await window.chat.listSessions();
+  } catch (err) {
+    result = { items: [], error: String(err?.message || err) };
+  }
+
+  if (sessionsPanel.hidden) return; // 기다리는 사이에 닫았으면 버린다
+  renderSessions(result);
+  sessionList.querySelector('.session')?.focus();
+}
+
+function closeSessions() {
+  sessionsPanel.hidden = true;
+  btnHistory.classList.remove('on');
+}
+
+function toggleSessions() {
+  if (sessionsPanel.hidden) openSessions();
+  else closeSessions();
+}
+
+btnHistory.addEventListener('click', toggleSessions);
+document.getElementById('btn-sessions-close').addEventListener('click', closeSessions);
+window.chat.onOpenSessions(() => openSessions());
+
 /* ---------------------------------------------------------------- 권한 요청 */
 
 window.chat.onPermission((req) => {
+  closeSessions(); // 승인 카드가 목록에 가려지지 않게
   endStream();
   endThinking();
 
@@ -596,7 +699,8 @@ input.addEventListener('keydown', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (busy) window.chat.stop();
+  if (!sessionsPanel.hidden) closeSessions();
+  else if (busy) window.chat.stop();
   else window.chat.close();
 });
 

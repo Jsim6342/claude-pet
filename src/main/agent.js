@@ -406,4 +406,23 @@ class Agent {
   }
 }
 
-module.exports = { Agent };
+/**
+ * 이 작업 폴더에서 나눴던 지난 대화 목록.
+ * SDK가 transcript 파일을 훑어 제목과 시각을 뽑아준다.
+ */
+async function listProjectSessions(cwd, limit = 40) {
+  const { listSessions } = await import('@anthropic-ai/claude-agent-sdk');
+  const sessions = await listSessions({ dir: cwd, limit });
+
+  return sessions
+    .map((info) => ({
+      sessionId: info.sessionId,
+      title: String(info.customTitle || info.summary || info.firstPrompt || '').trim(),
+      lastModified: info.lastModified || 0,
+      cwd: info.cwd || cwd,
+      gitBranch: info.gitBranch || null,
+    }))
+    .sort((a, b) => b.lastModified - a.lastModified);
+}
+
+module.exports = { Agent, listProjectSessions };

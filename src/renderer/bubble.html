@@ -16,11 +16,22 @@
         <button id="btn-cwd" class="path" title="작업 폴더 변경">~</button>
         <span class="spacer"></span>
         <button id="btn-mode" class="mode" title="권한 모드 전환">묻기</button>
+        <button id="btn-history" class="icon" title="지난 대화 목록">&#9776;</button>
         <button id="btn-new" class="icon" title="새 대화 시작">&#8635;</button>
         <button id="btn-close" class="icon" title="닫기 (Esc)">&#10005;</button>
       </header>
 
-      <div id="log" tabindex="-1"></div>
+      <div id="body">
+        <div id="log" tabindex="-1"></div>
+
+        <div id="sessions" hidden>
+          <div class="sessions-head">
+            <span>지난 대화</span>
+            <button id="btn-sessions-close" class="icon" title="닫기">&#10005;</button>
+          </div>
+          <div id="session-list"></div>
+        </div>
+      </div>
 
       <div id="attachments" hidden></div>
 

@@ -84,6 +84,11 @@ async function run(input, ctx) {
       actions.pickCwd();
       return { handled: true };
 
+    case 'resume':
+    case 'sessions':
+      actions.openSessions();
+      return { handled: true };
+
     default:
       if (TERMINAL_ONLY[name]) return { handled: true, notice: TERMINAL_ONLY[name] };
       return null; // 스킬 명령 등 — Claude에게 그대로 보낸다
@@ -105,6 +110,7 @@ async function helpText(agent) {
     '',
     '- `/help` — 이 목록',
     '- `/clear` — 새 대화 시작',
+    '- `/resume` — 지난 대화 목록에서 골라 이어가기',
     '- `/context` — 문맥이 얼마나 찼는지',
     '- `/model` — 모델 보기 · `/model <이름>` 으로 변경',
     '- `/mcp` — MCP 서버 상태',

@@ -20,7 +20,7 @@ const childTracker = require('./child-tracker');
 childTracker.install();
 
 const store = require('./store');
-const { Agent } = require('./agent');
+const { Agent, listProjectSessions } = require('./agent');
 const { Walker } = require('./walker');
 const { makeTrayIcon } = require('./tray-icon');
 const { resolveClaudeCli } = require('./cli-path');
@@ -230,7 +230,16 @@ function pipeConsole(win, label) {
 /* --------------------------------------------------------------------- 에이전트 */
 
 function createAgent(cwd) {
-  agent?.stop();
+  // 쓰던 세션은 곧장 죽이지 않는다. CLI는 나가면서 대화 기록을 디스크에 쓰므로,
+  // 바로 죽이면 방금 주고받은 내용이 "지난 대화" 목록에 남지 않는다.
+  const previous = agent;
+  if (previous) {
+    previous.onEvent = () => {}; // 떠나는 세션의 이벤트가 말풍선에 섞이지 않게
+    previous.onPermission = () => {};
+    previous.stop({ force: false });
+    setTimeout(() => previous.stop(), 1500);
+    walker?.setBusy(false); // 답하던 중에 갈아탔다면 캐릭터도 원래대로
+  }
 
   agent = new Agent({
     cwd,
@@ -317,6 +326,28 @@ function newSession() {
   send(bubbleWin, 'chat:reset', { reason: '새 대화를 시작했어요.' });
 }
 
+/** 목록에서 고른 지난 대화를 이어받는다. */
+function resumeSession(sessionId, cwd) {
+  if (!sessionId) return;
+  if (agent?.sessionId === sessionId) {
+    send(bubbleWin, 'chat:notice', { text: '이미 그 대화를 보고 있어요.' });
+    return;
+  }
+
+  const target = cwd || agent?.cwd || os.homedir();
+  // createAgent 는 store 를 보고 이어받을 세션을 정하므로 먼저 적어둔다.
+  store.set('cwd', target);
+  store.set('lastSessionId', sessionId);
+  createAgent(target);
+  send(bubbleWin, 'chat:reset', { reason: '지난 대화를 이어서 열었어요.' });
+}
+
+/** 말풍선을 띄우고 지난 대화 목록을 펼친다. */
+function openSessionList() {
+  openBubble();
+  send(bubbleWin, 'chat:open-sessions');
+}
+
 /* ------------------------------------------------------------------ 트레이 메뉴 */
 
 function buildTray() {
@@ -351,6 +382,7 @@ function refreshTrayMenu() {
     { type: 'separator' },
     { label: `작업 폴더: ${agent?.cwd || '-'}`, enabled: false },
     { label: '작업 폴더 변경…', click: pickCwd },
+    { label: '지난 대화 목록…', click: openSessionList },
     { label: '새 대화 시작', click: newSession },
     { type: 'separator' },
     updateMenuItem(),
@@ -419,7 +451,7 @@ function wireIpc() {
       if (!images.length && trimmed.startsWith('/')) {
         const result = await commands.run(trimmed, {
           agent,
-          actions: { newSession, pickCwd },
+          actions: { newSession, pickCwd, openSessions: openSessionList },
         });
         if (result?.handled) {
           if (result.notice) send(bubbleWin, 'chat:notice', { text: result.notice });
@@ -444,6 +476,19 @@ function wireIpc() {
   ipcMain.on('chat:close', closeBubble);
   ipcMain.on('chat:new-session', newSession);
   ipcMain.on('chat:pick-cwd', pickCwd);
+
+  ipcMain.handle('chat:list-sessions', async () => {
+    if (!agent?.cwd) return { items: [], currentId: null };
+    try {
+      const items = await listProjectSessions(agent.cwd);
+      return { items, currentId: agent.sessionId || null };
+    } catch (err) {
+      if (process.env.PET_DEBUG) console.error('[sessions]', err);
+      return { items: [], currentId: agent.sessionId || null, error: String(err?.message || err) };
+    }
+  });
+
+  ipcMain.on('chat:resume-session', (_e, { sessionId, cwd } = {}) => resumeSession(sessionId, cwd));
   ipcMain.on('chat:permission', (_e, { id, decision }) => agent?.resolvePermission(id, decision));
   ipcMain.on('chat:open-external', (_e, url) => {
     if (/^https?:\/\//.test(String(url))) shell.openExternal(url);

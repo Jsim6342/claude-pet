@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('chat', {
   close: () => ipcRenderer.send('chat:close'),
   newSession: () => ipcRenderer.send('chat:new-session'),
   pickCwd: () => ipcRenderer.send('chat:pick-cwd'),
+  listSessions: () => ipcRenderer.invoke('chat:list-sessions'),
+  resumeSession: (sessionId, cwd) => ipcRenderer.send('chat:resume-session', { sessionId, cwd }),
   respondPermission: (id, decision) => ipcRenderer.send('chat:permission', { id, decision }),
   openExternal: (url) => ipcRenderer.send('chat:open-external', url),
 
@@ -22,5 +24,6 @@ contextBridge.exposeInMainWorld('chat', {
   onReset: on('chat:reset'),
   onNotice: on('chat:notice'),
   onAnchor: on('chat:anchor'),
+  onOpenSessions: on('chat:open-sessions'),
   onFocusInput: on('chat:focus-input'),
 });
